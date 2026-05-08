@@ -140,6 +140,11 @@ def carregar_dados():
     df['mes_ano']          = df['dataajuizamento_dt'].dt.to_period('M').astype(str)
     if 'valor_causa' in df.columns:
         df['valor_causa'] = pd.to_numeric(df['valor_causa'], errors='coerce')
+    # Normalizar sistema_nome: variações de "PJe"/"Pje"/"PJE" são o mesmo sistema
+    if 'sistema_nome' in df.columns:
+        df['sistema_nome'] = df['sistema_nome'].apply(
+            lambda x: 'PJe' if isinstance(x, str) and x.upper() == 'PJE' else x
+        )
     return df
 
 with st.spinner("Carregando dados..."):
