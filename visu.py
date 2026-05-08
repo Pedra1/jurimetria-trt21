@@ -14,7 +14,7 @@ from pathlib import Path
 # CONFIGURAÇÃO DA PÁGINA
 # ─────────────────────────────────────────────
 st.set_page_config(
-    page_title="Jurimetria TRT21 · RN",
+    page_title="Judicialização dos Direitos Sociais · TRT21 · RN",
     page_icon="⚖️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -173,16 +173,16 @@ with st.sidebar:
         <div style='text-align:center; padding: 0.8rem 0 0.3rem;'>
             <img src='{_LOGO_SRC}' style='width: 130px; border-radius: 10px; margin-bottom: 0.4rem;' alt='ODSS DataLab'>
             <br>
-            <span style='font-size: 1rem; font-weight: 700; color: #58A6FF; letter-spacing: 0.05em;'>JURIMETRIA RN</span><br>
-            <span style='font-size: 0.7rem; color: #8B949E; text-transform: uppercase; letter-spacing: 0.1em;'>TRT 21ª Região</span>
+            <span style='font-size: 0.95rem; font-weight: 700; color: #58A6FF; letter-spacing: 0.05em;'>JUDICIALIZAÇÃO RN</span><br>
+            <span style='font-size: 0.65rem; color: #8B949E; text-transform: uppercase; letter-spacing: 0.1em;'>Direitos Sociais · TRT21</span>
         </div>
         """, unsafe_allow_html=True)
     else:
         st.markdown("""
         <div style='text-align:center; padding: 1rem 0 0.5rem;'>
             <span style='font-size: 2.2rem;'>⚖️</span><br>
-            <span style='font-size: 1rem; font-weight: 700; color: #58A6FF; letter-spacing: 0.05em;'>JURIMETRIA RN</span><br>
-            <span style='font-size: 0.7rem; color: #8B949E; text-transform: uppercase; letter-spacing: 0.1em;'>TRT 21ª Região</span>
+            <span style='font-size: 0.95rem; font-weight: 700; color: #58A6FF; letter-spacing: 0.05em;'>JUDICIALIZAÇÃO RN</span><br>
+            <span style='font-size: 0.65rem; color: #8B949E; text-transform: uppercase; letter-spacing: 0.1em;'>Direitos Sociais · TRT21</span>
         </div>
         """, unsafe_allow_html=True)
     st.markdown("---")
@@ -213,9 +213,6 @@ with st.sidebar:
     st.markdown("""
     <div style='text-align:center; padding: 0.5rem 0 0.2rem; border-top: 1px solid #21262D; margin-top: 0.5rem;'>
         <span style='font-size: 0.6rem; color: #58A6FF; font-weight: 600; letter-spacing: 0.05em;'>ODSS · UFERSA</span><br>
-        <span style='font-size: 0.55rem; color: #6E7681; line-height: 1.5;'>
-            Kenia Guerreiro · Pedro Nildo<br>Vinicius Augusto
-        </span><br>
         <span style='font-size: 0.5rem; color: #484F58; margin-top: 2px; display: inline-block;'>
             Dados: DataJud / CNJ
         </span>
@@ -238,9 +235,9 @@ df_f = df[mask].copy()
 # ─────────────────────────────────────────────
 # HERO HEADER
 # ─────────────────────────────────────────────
-st.caption("⚖️ Tribunal Regional do Trabalho · 21ª Região")
-st.title("Painel de Jurimetria")
-st.markdown("Análise quantitativa da judicialização trabalhista no Rio Grande do Norte · 2020–2024")
+st.caption("⚖️ Observatório dos Direitos Sociais do Semiárido · UFERSA")
+st.title("Judicialização dos Direitos Sociais no RN")
+st.markdown("Análise quantitativa da judicialização trabalhista · TRT 21ª Região · Rio Grande do Norte · 2020–2024")
 
 if df_f.empty:
     st.warning("Nenhum processo encontrado com os filtros selecionados.")
@@ -254,14 +251,14 @@ n_ano   = df_f.groupby('ano_extracao').size()
 delta_p = ((n_ano.iloc[-1] - n_ano.iloc[-2]) / n_ano.iloc[-2] * 100) if len(n_ano) >= 2 else 0
 media_ano = int(n_ano.mean()) if not n_ano.empty else 0
 n_comarcas = df_f['municipio_comarca'].nunique()
-ano_pico   = int(n_ano.idxmax()) if not n_ano.empty else "—"
+n_classes  = df_f['classe_nome'].nunique() if 'classe_nome' in df_f.columns else 0
 
 k1, k2, k3, k4, k5 = st.columns(5)
 k1.metric("Total de Processos",     f"{total:,}".replace(",", "."),           help="Processos no filtro selecionado")
 k2.metric("Variação (último ano)",  f"{delta_p:+.1f}%",                       delta=f"{delta_p:+.1f}%")
 k3.metric("Média Anual",            f"{media_ano:,}".replace(",", "."))
 k4.metric("Comarcas Analisadas",    f"{n_comarcas}")
-k5.metric("Ano de Maior Demanda",   f"{ano_pico}")
+k5.metric("Classes Processuais",    f"{n_classes}",                            help="Tipos de ação identificados")
 
 st.markdown("---")
 
@@ -272,8 +269,8 @@ aba1, aba2, aba3, aba4, aba5, aba6 = st.tabs([
     "📈  Evolução Temporal",
     "🗺️  Mapa Interativo",
     "📍  Distribuição Geográfica",
-    "📂  Assuntos & Tipos",
-    "⚙️  Análise por Sistema",
+    "📂  Perfil das Demandas",
+    "⚖️  Estrutura Judicial",
     "🔍  Explorar Dados",
 ])
 
@@ -890,8 +887,19 @@ with aba3:
 
 # ══════════════════════════════════════════════
 # ══════════════════════════════════════════════
-# ABA 4 — ASSUNTOS & TIPOS
+# ABA 4 — PERFIL DAS DEMANDAS
 with aba4:
+    st.markdown("""
+    <div style='background: linear-gradient(135deg, rgba(28,63,128,0.15), rgba(88,166,255,0.08)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #388BFD;'>
+        <span style='font-size: 0.78rem; color: #8B949E;'>
+            📋 Perfil descritivo das ações judiciais trabalhistas — assuntos primários e classes processuais
+            (Rito Ordinário, Sumaríssimo e Sumário) — variáveis relevantes para a análise da judicialização.
+        </span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── Seção 1: Assuntos Primários ──
+    st.markdown("### 📂 Assuntos Primários")
     col_a, col_b = st.columns(2)
 
     with col_a:
@@ -899,7 +907,6 @@ with aba4:
             df_ass = df_f['assunto_primario_nome'].value_counts().head(15).reset_index()
             df_ass.columns = ['assunto','qtd']
             df_ass['pct'] = (df_ass['qtd'] / df_ass['qtd'].sum() * 100).round(1)
-            # Truncar nomes longos
             df_ass['label'] = df_ass['assunto'].str[:45] + df_ass['assunto'].apply(lambda x: '…' if len(x)>45 else '')
 
             fig_ass = go.Figure(go.Bar(
@@ -919,7 +926,6 @@ with aba4:
 
     with col_b:
         if 'assunto_primario_nome' in df_f.columns:
-            # Donut chart top 8
             df_donut = df_f['assunto_primario_nome'].value_counts().head(8).reset_index()
             df_donut.columns = ['assunto','qtd']
             outros = df_f['assunto_primario_nome'].value_counts().iloc[8:].sum()
@@ -971,13 +977,176 @@ with aba4:
         fig_ass_t.update_traces(line_width=1.5)
         st.plotly_chart(fig_ass_t, use_container_width=True)
 
-# ══════════════════════════════════════════════
-# ══════════════════════════════════════════════
-# ABA 5 — ANÁLISE POR SISTEMA
-with aba5:
-    col_a, col_b = st.columns(2)
+    st.markdown("---")
 
-    with col_a:
+    # ── Seção 2: Classes Processuais (Ritos) ──
+    if 'classe_nome' in df_f.columns:
+        st.markdown("### ⚖️ Classes Processuais (Ritos)")
+        st.caption("A classificação por rito (Ordinário, Sumaríssimo, Sumário) indica o tipo de procedimento e o valor/complexidade da causa.")
+
+        col_c1, col_c2 = st.columns(2)
+
+        with col_c1:
+            df_classe = df_f['classe_nome'].value_counts().reset_index()
+            df_classe.columns = ['classe', 'qtd']
+            df_classe['pct'] = (df_classe['qtd'] / df_classe['qtd'].sum() * 100).round(1)
+
+            cores_classe = [COR_PRIMARIA, COR_SECUNDARIA, COR_ALERTA, COR_ROXO, COR_CIANO]
+            fig_classe = go.Figure(go.Bar(
+                x=df_classe['classe'],
+                y=df_classe['qtd'],
+                marker=dict(color=cores_classe[:len(df_classe)]),
+                text=df_classe.apply(lambda r: f"{r['qtd']:,} ({r['pct']}%)".replace(",","."), axis=1),
+                textposition='outside',
+                textfont=dict(size=11, color="#C9D1D9"),
+                hovertemplate="<b>%{x}</b><br>%{y:,} processos<extra></extra>",
+            ))
+            fig_classe.update_layout(**layout_plotly("Volume por Classe Processual"))
+            fig_classe.update_layout(height=400)
+            st.plotly_chart(fig_classe, use_container_width=True)
+
+        with col_c2:
+            fig_classe_pie = go.Figure(go.Pie(
+                labels=df_classe['classe'].str.replace('Ação Trabalhista - ', '', regex=False),
+                values=df_classe['qtd'],
+                hole=0.55,
+                marker=dict(
+                    colors=cores_classe[:len(df_classe)],
+                    line=dict(color='#0D1117', width=2),
+                ),
+                hovertemplate="<b>%{label}</b><br>%{value:,}<br>%{percent}<extra></extra>",
+                textinfo='label+percent',
+                textfont=dict(size=11),
+            ))
+            fig_classe_pie.update_layout(**layout_plotly("Composição por Rito"))
+            fig_classe_pie.update_layout(height=400)
+            st.plotly_chart(fig_classe_pie, use_container_width=True)
+
+        # Evolução por classe ao longo do tempo
+        df_classe_tempo = df_f.groupby(['ano_extracao', 'classe_nome']).size().reset_index(name='qtd')
+        fig_classe_t = px.bar(
+            df_classe_tempo, x='ano_extracao', y='qtd', color='classe_nome',
+            barmode='stack',
+            color_discrete_sequence=[COR_PRIMARIA, COR_SECUNDARIA, COR_ALERTA, COR_ROXO],
+            labels={'classe_nome': 'Classe', 'ano_extracao': 'Ano', 'qtd': 'Processos'},
+        )
+        fig_classe_t.update_layout(**layout_plotly("Evolução das Classes Processuais por Ano"))
+        fig_classe_t.update_xaxes(tickmode='linear', dtick=1)
+        st.plotly_chart(fig_classe_t, use_container_width=True)
+
+
+# ══════════════════════════════════════════════
+# ══════════════════════════════════════════════
+# ABA 5 — ESTRUTURA JUDICIAL
+with aba5:
+    st.markdown("""
+    <div style='background: linear-gradient(135deg, rgba(28,63,128,0.15), rgba(88,166,255,0.08)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #388BFD;'>
+        <span style='font-size: 0.78rem; color: #8B949E;'>
+            🏛️ Estrutura dos órgãos julgadores da Justiça do Trabalho no RN — distribuição de processos
+            por vara, formato e sistema processual.
+        </span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── Seção 1: Distribuição por Órgão Julgador (Varas) ──
+    st.markdown("### 🏛️ Órgãos Julgadores (Varas do Trabalho)")
+
+    if 'orgaoJulgador_nome' in df_f.columns:
+        col_a, col_b = st.columns([3, 2])
+
+        with col_a:
+            df_vara = df_f['orgaoJulgador_nome'].value_counts().reset_index()
+            df_vara.columns = ['vara', 'qtd']
+            df_vara['pct'] = (df_vara['qtd'] / df_vara['qtd'].sum() * 100).round(1)
+            df_vara_top = df_vara.head(20)
+
+            fig_vara = go.Figure(go.Bar(
+                x=df_vara_top['qtd'],
+                y=df_vara_top['vara'],
+                orientation='h',
+                marker=dict(
+                    color=df_vara_top['qtd'],
+                    colorscale=[[0,'#1C3F80'],[0.5,'#388BFD'],[1,'#58A6FF']],
+                    showscale=False,
+                ),
+                text=df_vara_top.apply(lambda r: f"{r['qtd']:,} ({r['pct']}%)".replace(",","."), axis=1),
+                textposition='outside',
+                textfont=dict(size=10, color="#C9D1D9"),
+                hovertemplate="<b>%{y}</b><br>%{x:,} processos<extra></extra>",
+            ))
+            fig_vara.update_layout(**layout_plotly("Ranking de Varas do Trabalho por Volume"))
+            fig_vara.update_layout(height=550)
+            fig_vara.update_yaxes(categoryorder='total ascending')
+            st.plotly_chart(fig_vara, use_container_width=True)
+
+        with col_b:
+            # Donut por vara (top 10 + outros)
+            df_vara_donut = df_vara.head(10).copy()
+            outros_vara = df_vara.iloc[10:]['qtd'].sum() if len(df_vara) > 10 else 0
+            if outros_vara > 0:
+                df_vara_donut = pd.concat([df_vara_donut, pd.DataFrame({'vara':['Demais varas'],'qtd':[outros_vara],'pct':[0]})], ignore_index=True)
+            df_vara_donut['label'] = df_vara_donut['vara'].str.replace('Vara do Trabalho de ', '', regex=False).str.replace('ª Vara do Trabalho de ', 'ª VT ', regex=False)
+
+            fig_vara_pie = go.Figure(go.Pie(
+                labels=df_vara_donut['label'],
+                values=df_vara_donut['qtd'],
+                hole=0.5,
+                marker=dict(
+                    colors=[COR_PRIMARIA, COR_ROXO, COR_CIANO, COR_LARANJA, COR_SECUNDARIA,
+                             COR_ALERTA, COR_PERIGO, "#E879F9", "#94A3B8", "#F0ABFC", "#6B7280"],
+                    line=dict(color='#0D1117', width=2),
+                ),
+                hovertemplate="<b>%{label}</b><br>%{value:,}<br>%{percent}<extra></extra>",
+                textinfo='percent',
+                textfont=dict(size=10),
+            ))
+            fig_vara_pie.update_layout(**layout_plotly("Distribuição por Vara"))
+            fig_vara_pie.update_layout(
+                height=550,
+                annotations=[dict(
+                    text=f"<b>{df_f['orgaoJulgador_nome'].nunique()}</b><br>varas",
+                    x=0.5, y=0.5, showarrow=False,
+                    font=dict(size=14, color="#C9D1D9", family="Sora"),
+                )],
+            )
+            st.plotly_chart(fig_vara_pie, use_container_width=True)
+
+        st.markdown("---")
+
+        # Evolução das top 10 varas ao longo do tempo
+        top10_varas = df_f['orgaoJulgador_nome'].value_counts().head(10).index.tolist()
+        df_vara_evo = (
+            df_f[df_f['orgaoJulgador_nome'].isin(top10_varas)]
+            .groupby(['ano_extracao','orgaoJulgador_nome']).size()
+            .reset_index(name='qtd')
+        )
+        df_vara_evo['label'] = df_vara_evo['orgaoJulgador_nome'].str.replace('Vara do Trabalho de ', '', regex=False).str.replace('ª Vara do Trabalho de ', 'ª VT ', regex=False)
+
+        cores_varas = [COR_PRIMARIA, COR_ROXO, COR_CIANO, COR_LARANJA,
+                       COR_SECUNDARIA, COR_ALERTA, COR_PERIGO, "#E879F9", "#94A3B8", "#F0ABFC"]
+        fig_vara_evo = go.Figure()
+        for i, v in enumerate(top10_varas):
+            d = df_vara_evo[df_vara_evo['orgaoJulgador_nome'] == v]
+            label = d['label'].iloc[0] if not d.empty else v
+            fig_vara_evo.add_trace(go.Scatter(
+                x=d['ano_extracao'], y=d['qtd'],
+                mode='lines+markers',
+                name=label,
+                line=dict(color=cores_varas[i % len(cores_varas)], width=2),
+                marker=dict(size=5),
+                hovertemplate=f"<b>{label}</b><br>%{{x}}: %{{y:,}} processos<extra></extra>",
+            ))
+        fig_vara_evo.update_layout(**layout_plotly("Evolução das 10 Maiores Varas"))
+        fig_vara_evo.update_xaxes(tickmode='linear', dtick=1)
+        st.plotly_chart(fig_vara_evo, use_container_width=True)
+
+    st.markdown("---")
+
+    # ── Seção 2: Resumo por Sistema (informação secundária) ──
+    st.markdown("### 💻 Sistema Processual")
+
+    col_s1, col_s2 = st.columns(2)
+    with col_s1:
         df_sis = df_f['sistema_nome'].value_counts().reset_index()
         df_sis.columns = ['sistema','qtd']
         df_sis['pct'] = (df_sis['qtd'] / df_sis['qtd'].sum() * 100).round(1)
@@ -996,8 +1165,7 @@ with aba5:
         fig_sis.update_layout(**layout_plotly("Volume por Sistema"))
         st.plotly_chart(fig_sis, use_container_width=True)
 
-    with col_b:
-        # Participação ao longo dos anos
+    with col_s2:
         df_sis_ano = df_f.groupby(['ano_extracao','sistema_nome']).size().reset_index(name='qtd')
         fig_sis_area = px.bar(
             df_sis_ano, x='ano_extracao', y='qtd', color='sistema_nome',
@@ -1007,8 +1175,6 @@ with aba5:
         fig_sis_area.update_layout(**layout_plotly("Composição por Sistema por Ano"))
         fig_sis_area.update_xaxes(tickmode='linear', dtick=1)
         st.plotly_chart(fig_sis_area, use_container_width=True)
-
-    st.markdown("---")
 
     # Tabela resumo por sistema
     df_sis_tab = df_f.groupby('sistema_nome').agg(
@@ -1111,18 +1277,15 @@ st.markdown(f"""
 <div style='text-align: center; padding: 1.5rem 1rem; color: #8B949E; font-size: 0.78rem; line-height: 1.8;'>
     {_footer_logo}
     <div style='margin-bottom: 0.6rem;'>
-        <span style='font-weight: 700; color: #58A6FF; letter-spacing: 0.03em;'>Jurimetria TRT21</span>
+        <span style='font-weight: 700; color: #58A6FF; letter-spacing: 0.03em;'>Judicialização dos Direitos Sociais · TRT21</span>
         <span style='color: #484F58;'> · </span>
         <span>Rio Grande do Norte</span>
     </div>
     <div style='margin-bottom: 0.8rem; color: #6E7681; font-size: 0.72rem;'>
-        Desenvolvido por
-        <span style='color: #C9D1D9;'>Kenia Guerreiro</span>,
-        <span style='color: #C9D1D9;'>Pedro Nildo</span> e
-        <span style='color: #C9D1D9;'>Vinicius Augusto</span><br>
-        no âmbito do projeto
+        Desenvolvido no âmbito do projeto
         <span style='color: #58A6FF; font-weight: 600;'>Observatório dos Direitos Sociais do Semiárido (ODSS)</span>
-        · <span style='color: #C9D1D9;'>UFERSA</span>
+        · <span style='color: #C9D1D9;'>UFERSA</span><br>
+        <span style='color: #484F58; font-size: 0.65rem;'>Financiamento: CNPq/MCTI/FNDCT · Chamada nº 44/2024</span>
     </div>
     <div style='display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; font-size: 0.68rem; color: #484F58;'>
         <span>📊 Dados: <span style='color: #6E7681;'>DataJud · CNJ (API pública)</span></span>
