@@ -1099,18 +1099,6 @@ with aba6:
 
     st.markdown("---")
 
-    # Estatísticas descritivas das colunas numéricas
-    st.markdown("**📊 Estatísticas Descritivas**")
-    cols_num = df_exp.select_dtypes(include=[np.number]).columns.tolist()
-    if cols_num:
-        st.dataframe(
-            df_exp[cols_num].describe().round(2).T.rename(columns={
-                'count':'N', 'mean':'Média', 'std':'Desvio Padrão',
-                'min':'Mínimo', '25%':'Q1', '50%':'Mediana', '75%':'Q3', 'max':'Máximo'
-            }),
-            use_container_width=True,
-        )
-
 # ─────────────────────────────────────────────
 # RODAPÉ
 # ─────────────────────────────────────────────
