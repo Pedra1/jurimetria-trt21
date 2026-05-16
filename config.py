@@ -6,6 +6,7 @@ import unicodedata
 # Cores por tribunal
 CORES_TRIBUNAL = {
     "TRT21": {"primaria": "#58A6FF", "escala": ["#0D1F36","#0C2D5A","#1C3F80","#2958B3","#388BFD","#58A6FF","#79BFFF","#A5D3FF"], "icon": "⚖️", "nome": "Justiça do Trabalho", "subtitulo": "TRT 21ª Região"},
+    "TRT21_ULISSES": {"primaria": "#79BFFF", "escala": ["#0D1F36","#0C2D5A","#1C3F80","#2958B3","#388BFD","#58A6FF","#79BFFF","#A5D3FF"], "icon": "📋", "nome": "Justiça do Trabalho (Ulisses)", "subtitulo": "TRT 21ª Região · Base Capa"},
     "TJRN":  {"primaria": "#3FB950", "escala": ["#0D1F14","#0C3D1A","#1C6030","#29804A","#38A865","#3FB950","#6BD07A","#A5E8B5"], "icon": "🏛️", "nome": "Justiça Estadual", "subtitulo": "Tribunal de Justiça do RN"},
     "JFRN":  {"primaria": "#BC8CFF", "escala": ["#1A0D36","#2D0C5A","#3F1C80","#5829B3","#7B38FD","#BC8CFF","#D4AFFF","#E8D3FF"], "icon": "🇧🇷", "nome": "Justiça Federal", "subtitulo": "JFRN · TRF 5ª Região"},
 }

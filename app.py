@@ -57,6 +57,7 @@ with st.sidebar:
         options=[
             "📊  Visão Geral",
             "⚖️  TRT21 — Trabalho",
+            "📋  TRT21 — ULISSES",
             "🏛️  TJRN — Estadual (Saúde)",
             "🇧🇷  JFRN — Federal (Saúde)",
         ],
@@ -81,6 +82,10 @@ if not has_data:
 if "Visão Geral" in secao:
     from secao_overview import render_overview
     render_overview(dados)
+
+elif "TRT21" in secao and "ULISSES" in secao:
+    from secao_trt21_ulisses import render_trt21_ulisses
+    render_trt21_ulisses(dados['TRT21_ULISSES'])
 
 elif "TRT21" in secao:
     from secao_trt21 import render_trt21

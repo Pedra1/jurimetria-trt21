@@ -16,10 +16,9 @@ def render_overview(dados: dict):
     st.markdown("Visão comparativa entre os três tribunais analisados — **TRT21** (Trabalho), **TJRN** (Estadual) e **JFRN/TRF5** (Federal)")
 
     # ── KPI Cards ──
-    cols = st.columns(3)
-    for i, (trib, df) in enumerate(dados.items()):
-        if df.empty:
-            continue
+    tribs_com_dados = [(trib, df) for trib, df in dados.items() if not df.empty]
+    cols = st.columns(len(tribs_com_dados) if tribs_com_dados else 1)
+    for i, (trib, df) in enumerate(tribs_com_dados):
         cor = CORES_TRIBUNAL[trib]
         icon = cor["icon"]
         nome = cor["nome"]
