@@ -271,7 +271,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
     st.markdown("---")
 
     # ── Abas ──
-    aba1, aba2, aba3, aba4, aba5, aba6, aba7 = st.tabs([
+    aba1, aba2, aba3, aba4, aba5, aba6, aba7, aba8 = st.tabs([
         "📈  Evolução Temporal",
         "🗺️  Mapa Interativo",
         "📍  Distribuição Geográfica",
@@ -279,6 +279,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         "⚖️  Estrutura Judicial",
         "🔍  Explorar Dados",
         "📋  Lista de Assuntos",
+        "📊  Evolução de Assuntos",
     ])
 
     # ═══════════ ABA 1: EVOLUÇÃO TEMPORAL ═══════════
@@ -1195,3 +1196,269 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 )
         else:
             st.warning("Coluna 'assuntos_str' não encontrada nos dados.")
+
+    # ═══════════ ABA 8: EVOLUÇÃO DE ASSUNTOS ═══════════
+    with aba8:
+        import re as _re8
+
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, rgba(88,166,255,0.15), rgba(188,140,255,0.10)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #58A6FF;'>
+            <span style='font-size: 0.78rem; color: #8B949E;'>
+                📊 Análise da evolução temporal dos assuntos processuais agrupados por <b>semestre</b>.
+                Selecione os assuntos de interesse para visualizar tendências, picos e vales ao longo do período 2020–2024.
+                Os dados são extraídos da coluna <code>assuntos_str</code>, explodindo múltiplos assuntos por processo.
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if 'assuntos_str' not in df_f.columns or 'dataAjuizamento' not in df_f.columns:
+            st.warning("Colunas necessárias ('assuntos_str', 'dataAjuizamento') não encontradas.")
+        else:
+            # ── Explodir assuntos e derivar semestre ──
+            @st.cache_data(show_spinner=False)
+            def _explodir_assuntos_semestre(_df):
+                rows = []
+                for _, r in _df[['assuntos_str', 'dataAjuizamento', 'ano', 'municipio_comarca']].iterrows():
+                    if not isinstance(r['assuntos_str'], str) or not r['assuntos_str'].strip():
+                        continue
+                    dt = r['dataAjuizamento']
+                    if pd.isna(dt):
+                        continue
+                    sem = f"{int(r['ano'])}-S{'1' if dt.month <= 6 else '2'}"
+                    for parte in r['assuntos_str'].split('|'):
+                        parte = parte.strip()
+                        if not parte:
+                            continue
+                        m = _re8.match(r'(\d+)\s*-\s*(.+)', parte)
+                        nome = m.group(2).strip() if m else parte
+                        rows.append({'assunto': nome, 'semestre': sem, 'ano': int(r['ano']), 'comarca': r['municipio_comarca']})
+                return pd.DataFrame(rows)
+
+            df_exp_sem = _explodir_assuntos_semestre(df_f)
+
+            if df_exp_sem.empty:
+                st.warning("Nenhum assunto encontrado nos dados filtrados.")
+            else:
+                # ── Tabela de frequências ──
+                freq_total = df_exp_sem['assunto'].value_counts().reset_index()
+                freq_total.columns = ['Assunto', 'Frequência']
+                freq_total['%'] = (freq_total['Frequência'] / freq_total['Frequência'].sum() * 100).round(2)
+
+                # ── KPIs ──
+                kk1, kk2, kk3, kk4 = st.columns(4)
+                kk1.metric("Total de Menções", fmt_num(len(df_exp_sem)))
+                kk2.metric("Assuntos Únicos", fmt_num(df_exp_sem['assunto'].nunique()))
+                semestres_unicos = sorted(df_exp_sem['semestre'].unique())
+                kk3.metric("Semestres", len(semestres_unicos))
+                kk4.metric("Período", f"{semestres_unicos[0]} a {semestres_unicos[-1]}")
+
+                st.markdown("---")
+
+                # ── Filtro de assuntos ──
+                top_assuntos_list = freq_total['Assunto'].head(30).tolist()
+                assuntos_evo_sel = st.multiselect(
+                    "📂 Selecione os assuntos para análise",
+                    options=freq_total['Assunto'].tolist(),
+                    default=top_assuntos_list[:5],
+                    key="ulisses_evo_assuntos",
+                    help="Selecione um ou mais assuntos para visualizar a evolução semestral",
+                )
+
+                if not assuntos_evo_sel:
+                    st.info("Selecione ao menos um assunto acima para visualizar a análise.")
+                else:
+                    # ── Tabela de frequências dos selecionados ──
+                    with st.expander("📋 Tabela de Frequências", expanded=False):
+                        df_freq_sel = freq_total[freq_total['Assunto'].isin(assuntos_evo_sel)].reset_index(drop=True)
+                        df_freq_sel.index += 1
+                        st.dataframe(df_freq_sel, use_container_width=True, hide_index=False)
+
+                    # ── Preparar dados semestrais ──
+                    df_sem = (
+                        df_exp_sem[df_exp_sem['assunto'].isin(assuntos_evo_sel)]
+                        .groupby(['assunto', 'semestre']).size()
+                        .reset_index(name='qtd')
+                    )
+                    # Garantir todos os semestres para cada assunto
+                    idx = pd.MultiIndex.from_product(
+                        [assuntos_evo_sel, semestres_unicos],
+                        names=['assunto', 'semestre']
+                    )
+                    df_sem = df_sem.set_index(['assunto', 'semestre']).reindex(idx, fill_value=0).reset_index()
+
+                    # ── Detecção de picos e vales ──
+                    def _detectar_picos_vales(valores):
+                        """Detecta picos e vales em série curta por comparação com vizinhos."""
+                        picos, vales = [], []
+                        n = len(valores)
+                        if n < 3:
+                            return picos, vales
+                        for i in range(n):
+                            v = valores[i]
+                            esq = valores[i - 1] if i > 0 else float('-inf')
+                            dir_ = valores[i + 1] if i < n - 1 else float('-inf')
+                            if v > esq and v > dir_:
+                                picos.append(i)
+                            esq_v = valores[i - 1] if i > 0 else float('inf')
+                            dir_v = valores[i + 1] if i < n - 1 else float('inf')
+                            if v < esq_v and v < dir_v:
+                                vales.append(i)
+                        return picos, vales
+
+                    # ═══ GRÁFICO 1: Evolução Semestral (linhas) ═══
+                    st.markdown("### 📈 Evolução Semestral por Assunto")
+                    fig_evo = go.Figure()
+                    for i, assunto in enumerate(assuntos_evo_sel):
+                        d = df_sem[df_sem['assunto'] == assunto].sort_values('semestre')
+                        cor_linha = CORES_MULTI[i % len(CORES_MULTI)]
+                        valores = d['qtd'].tolist()
+                        sems = d['semestre'].tolist()
+                        picos, vales = _detectar_picos_vales(valores)
+
+                        # Linha principal
+                        fig_evo.add_trace(go.Scatter(
+                            x=sems, y=valores,
+                            mode='lines+markers',
+                            name=assunto[:40],
+                            line=dict(color=cor_linha, width=2.5),
+                            marker=dict(size=7, color=cor_linha, line=dict(color='#0D1117', width=1.5)),
+                            hovertemplate=f"<b>{assunto[:40]}</b><br>%{{x}}: %{{y:,}}<extra></extra>",
+                        ))
+                        # Marcadores de picos
+                        if picos:
+                            fig_evo.add_trace(go.Scatter(
+                                x=[sems[p] for p in picos], y=[valores[p] for p in picos],
+                                mode='markers+text',
+                                marker=dict(symbol='triangle-up', size=14, color=COR_SECUNDARIA, line=dict(color='#0D1117', width=1)),
+                                text=[f"▲ {fmt_num(valores[p])}" for p in picos],
+                                textposition='top center', textfont=dict(size=9, color=COR_SECUNDARIA),
+                                showlegend=False,
+                                hovertemplate=f"<b>PICO — {assunto[:30]}</b><br>%{{x}}: %{{y:,}}<extra></extra>",
+                            ))
+                        # Marcadores de vales
+                        if vales:
+                            fig_evo.add_trace(go.Scatter(
+                                x=[sems[v] for v in vales], y=[valores[v] for v in vales],
+                                mode='markers+text',
+                                marker=dict(symbol='triangle-down', size=14, color=COR_PERIGO, line=dict(color='#0D1117', width=1)),
+                                text=[f"▼ {fmt_num(valores[v])}" for v in vales],
+                                textposition='bottom center', textfont=dict(size=9, color=COR_PERIGO),
+                                showlegend=False,
+                                hovertemplate=f"<b>VALE — {assunto[:30]}</b><br>%{{x}}: %{{y:,}}<extra></extra>",
+                            ))
+
+                    fig_evo.update_layout(**layout_plotly("Evolução Semestral dos Assuntos Selecionados"))
+                    fig_evo.update_layout(height=500, xaxis_tickangle=45)
+                    st.plotly_chart(fig_evo, use_container_width=True)
+
+                    # ═══ GRÁFICO 2: Heatmap Semestral ═══
+                    st.markdown("### 🔥 Heatmap — Intensidade por Semestre")
+                    df_heat_pivot = df_sem.pivot(index='assunto', columns='semestre', values='qtd').fillna(0)
+                    # Ordenar por total
+                    df_heat_pivot['_total'] = df_heat_pivot.sum(axis=1)
+                    df_heat_pivot = df_heat_pivot.sort_values('_total', ascending=True).drop(columns='_total')
+                    # Labels truncados
+                    labels_y = [a[:35] + ('…' if len(a) > 35 else '') for a in df_heat_pivot.index]
+
+                    fig_heat = go.Figure(go.Heatmap(
+                        z=df_heat_pivot.values,
+                        x=[str(c) for c in df_heat_pivot.columns],
+                        y=labels_y,
+                        colorscale=[[0, '#0D1F36'], [0.3, '#1C3F80'], [0.6, '#388BFD'], [1, '#A5D3FF']],
+                        hovertemplate="<b>%{y}</b><br>%{x}: %{z:,.0f} menções<extra></extra>",
+                        showscale=True,
+                        colorbar=dict(tickfont=dict(color='#8B949E', size=10), outlinewidth=0),
+                        text=df_heat_pivot.values.astype(int),
+                        texttemplate='%{text:,}',
+                        textfont=dict(size=9, color='#C9D1D9'),
+                    ))
+                    h_heat = max(350, len(assuntos_evo_sel) * 35 + 100)
+                    fig_heat.update_layout(**layout_plotly("Volume de Menções por Assunto × Semestre"))
+                    fig_heat.update_layout(height=h_heat, margin=dict(l=200))
+                    st.plotly_chart(fig_heat, use_container_width=True)
+
+                    # ═══ GRÁFICO 3: Variação % Semestral ═══
+                    st.markdown("### 📉 Variação Percentual entre Semestres")
+                    var_rows = []
+                    for assunto in assuntos_evo_sel:
+                        d = df_sem[df_sem['assunto'] == assunto].sort_values('semestre')
+                        vals = d['qtd'].tolist()
+                        sems = d['semestre'].tolist()
+                        for j in range(1, len(vals)):
+                            prev = vals[j - 1]
+                            delta = ((vals[j] - prev) / prev * 100) if prev > 0 else 0
+                            var_rows.append({'assunto': assunto, 'semestre': sems[j], 'variacao': round(delta, 1)})
+                    df_var = pd.DataFrame(var_rows)
+
+                    if not df_var.empty:
+                        # Se muitos assuntos, mostrar barras agrupadas
+                        fig_var = go.Figure()
+                        for i, assunto in enumerate(assuntos_evo_sel):
+                            dv = df_var[df_var['assunto'] == assunto]
+                            cores_var = [COR_SECUNDARIA if v >= 0 else COR_PERIGO for v in dv['variacao']]
+                            fig_var.add_trace(go.Bar(
+                                x=dv['semestre'], y=dv['variacao'],
+                                name=assunto[:35],
+                                marker_color=CORES_MULTI[i % len(CORES_MULTI)],
+                                text=dv['variacao'].apply(lambda v: f"{v:+.1f}%"),
+                                textposition='outside', textfont=dict(size=8, color='#C9D1D9'),
+                                hovertemplate=f"<b>{assunto[:35]}</b><br>%{{x}}: %{{y:+.1f}}%<extra></extra>",
+                            ))
+                        fig_var.update_layout(**layout_plotly("Variação (%) entre Semestres Consecutivos"))
+                        fig_var.update_layout(height=450, barmode='group', xaxis_tickangle=45)
+                        fig_var.add_hline(y=0, line_dash='dash', line_color='#21262D')
+                        st.plotly_chart(fig_var, use_container_width=True)
+
+                    # ═══ RESUMO ESTATÍSTICO ═══
+                    st.markdown("### 📊 Resumo Estatístico")
+                    resumo_rows = []
+                    for assunto in assuntos_evo_sel:
+                        d = df_sem[df_sem['assunto'] == assunto].sort_values('semestre')
+                        vals = d['qtd'].tolist()
+                        sems = d['semestre'].tolist()
+                        picos, vales = _detectar_picos_vales(vals)
+                        tendencia = 'Crescente ↑' if len(vals) >= 2 and vals[-1] > vals[0] else ('Decrescente ↓' if len(vals) >= 2 and vals[-1] < vals[0] else 'Estável →')
+                        var_total = ((vals[-1] - vals[0]) / vals[0] * 100) if vals[0] > 0 and len(vals) >= 2 else 0
+                        resumo_rows.append({
+                            'Assunto': assunto[:45],
+                            'Total': sum(vals),
+                            'Média Sem.': round(np.mean(vals), 1),
+                            'Máximo': max(vals),
+                            'Sem. Pico': sems[vals.index(max(vals))],
+                            'Mínimo': min(vals),
+                            'Sem. Vale': sems[vals.index(min(vals))],
+                            'Tendência': tendencia,
+                            'Var. Total (%)': f"{var_total:+.1f}%",
+                            'Picos': len(picos),
+                            'Vales': len(vales),
+                        })
+                    df_resumo = pd.DataFrame(resumo_rows)
+                    st.dataframe(df_resumo, use_container_width=True, hide_index=True)
+
+                    # ═══ EXPORTAR PDF ═══
+                    st.markdown("---")
+                    st.markdown("### 📄 Exportar Relatório PDF")
+                    st.markdown("Gere um relatório PDF completo com todos os gráficos e análises dos assuntos selecionados.")
+
+                    if st.button("📄 Gerar Relatório PDF", key="ulisses_gerar_pdf", use_container_width=True, type="primary"):
+                        try:
+                            from gerar_relatorio_assuntos import gerar_relatorio_pdf
+                            import tempfile, os
+                            with st.spinner("Gerando relatório PDF..."):
+                                tmp_dir = tempfile.mkdtemp()
+                                pdf_path = os.path.join(tmp_dir, "relatorio_assuntos_trt21_ulisses.pdf")
+                                gerar_relatorio_pdf(assuntos_evo_sel, df_f, pdf_path)
+                                with open(pdf_path, 'rb') as f:
+                                    pdf_bytes = f.read()
+                            st.success(f"✅ Relatório gerado com sucesso! ({len(pdf_bytes)//1024} KB)")
+                            from datetime import datetime as _dt2
+                            st.download_button(
+                                label="⬇️  Baixar Relatório PDF",
+                                data=pdf_bytes,
+                                file_name=f"relatorio_assuntos_trt21_{_dt2.now().strftime('%Y%m%d_%H%M')}.pdf",
+                                mime='application/pdf',
+                                use_container_width=True,
+                                key="ulisses_download_pdf",
+                            )
+                        except Exception as e:
+                            st.error(f"Erro ao gerar PDF: {e}")
