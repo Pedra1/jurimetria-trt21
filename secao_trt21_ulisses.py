@@ -294,8 +294,8 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 text=df_anual['qtd'].apply(fmt_num),
                 textposition='top center', textfont=dict(size=10, color=cor),
                 line=dict(color=cor, width=2.5),
-                marker=dict(size=8, color=cor, line=dict(color="#0D1117", width=2)),
-                fill='tozeroy', fillcolor='rgba(88,166,255,0.06)',
+                marker=dict(size=8, color=cor, line=dict(color="#FFFFFF", width=2)),
+                fill='tozeroy', fillcolor='rgba(9,105,218,0.06)',
                 name='Processos',
                 hovertemplate="<b>%{x}</b><br>%{y:,} processos<extra></extra>",
             ))
@@ -311,12 +311,12 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 x=df_anual_delta['ano'], y=df_anual_delta['delta'].round(1),
                 marker_color=cores_delta,
                 text=df_anual_delta['delta'].apply(lambda v: f"{v:+.1f}%"),
-                textposition='outside', textfont=dict(size=10, color="#C9D1D9"),
+                textposition='outside', textfont=dict(size=10, color="#1F2328"),
                 hovertemplate="<b>%{x}</b><br>Variação: %{y:.1f}%<extra></extra>",
             ))
             fig_delta.update_layout(**layout_plotly("Variação Anual (%)"))
             fig_delta.update_xaxes(tickmode='linear', dtick=1)
-            fig_delta.add_hline(y=0, line_dash="dash", line_color="#21262D")
+            fig_delta.add_hline(y=0, line_dash="dash", line_color="#D0D7DE")
             st.plotly_chart(fig_delta, use_container_width=True)
 
         st.markdown("---")
@@ -328,10 +328,10 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
             df_pivot.index = [meses_pt[i-1] for i in df_pivot.index]
             fig_heat = go.Figure(go.Heatmap(
                 z=df_pivot.values, x=[str(c) for c in df_pivot.columns], y=df_pivot.index,
-                colorscale=[[0,'#0D1117'],[0.3,'#1C3F80'],[0.7,'#388BFD'],[1,'#A5D3FF']],
+                colorscale=[[0,'#F6F8FA'],[0.3,'#BDDDF5'],[0.7,'#4BA0DC'],[1,'#0550AE']],
                 hovertemplate="<b>%{y} %{x}</b><br>%{z:.0f} processos<extra></extra>",
                 showscale=True,
-                colorbar=dict(tickfont=dict(color="#8B949E", size=10), outlinewidth=0, bgcolor="rgba(0,0,0,0)"),
+                colorbar=dict(tickfont=dict(color="#57606A", size=10), outlinewidth=0, bgcolor="rgba(255,255,255,0)"),
             ))
             fig_heat.update_layout(**layout_plotly("Distribuição Mensal (Heatmap)"))
             st.plotly_chart(fig_heat, use_container_width=True)
@@ -341,7 +341,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 df_trim = df_f.groupby('trimestre').size().reset_index(name='qtd').sort_values('trimestre').tail(20)
                 fig_trim = go.Figure(go.Bar(
                     x=df_trim['trimestre'], y=df_trim['qtd'],
-                    marker=dict(color=df_trim['qtd'], colorscale=[[0,'#1C3F80'],[1,'#58A6FF']], showscale=False),
+                    marker=dict(color=df_trim['qtd'], colorscale=[[0,'#BDDDF5'],[1,'#0550AE']], showscale=False),
                     hovertemplate="<b>%{x}</b><br>%{y:,} processos<extra></extra>",
                 ))
                 fig_trim.update_layout(**layout_plotly("Evolução Trimestral"))
@@ -490,14 +490,14 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     featureidkey='properties.id',
                     color='processos',
                     color_continuous_scale=[
-                        [0.0,  "#0D1F36"],
-                        [0.15, "#1C3F80"],
+                        [0.0,  "#F0F4F8"],
+                        [0.15, "#BDDDF5"],
                         [0.35, "#2958B3"],
-                        [0.55, "#388BFD"],
-                        [0.75, "#58A6FF"],
+                        [0.55, "#4BA0DC"],
+                        [0.75, "#0969DA"],
                         [1.0,  "#A5D3FF"],
                     ],
-                    mapbox_style="carto-darkmatter",
+                    mapbox_style="carto-positron",
                     zoom=7.0,
                     center={"lat": -5.80, "lon": -36.40},
                     opacity=0.92,
@@ -532,7 +532,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                         sourcetype="geojson",
                         source=geojson_estado,
                         type="fill",
-                        color="rgba(30, 37, 48, 0.6)",
+                        color="rgba(240, 244, 248, 0.6)",
                         below="traces",
                     ))
                     # Contorno estadual externo
@@ -540,14 +540,14 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                         sourcetype="geojson",
                         source=geojson_estado,
                         type="line",
-                        color="rgba(88, 166, 255, 0.15)",
+                        color="rgba(189, 221, 245, 0.5)",
                         line=dict(width=0.6),
                         below="traces",
                     ))
 
                 fig_mapa.update_layout(
-                    paper_bgcolor="rgba(0,0,0,0)",
-                    plot_bgcolor="rgba(0,0,0,0)",
+                    paper_bgcolor="rgba(255,255,255,0)",
+                    plot_bgcolor="rgba(255,255,255,0)",
                     mapbox=dict(
                         layers=mapbox_layers,
                     ),
@@ -555,18 +555,18 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     height=650,
                     showlegend=False,
                     coloraxis_colorbar=dict(
-                        title=dict(text="Processos", font=dict(size=11, color="#8B949E")),
-                        tickfont=dict(size=10, color="#8B949E"),
+                        title=dict(text="Processos", font=dict(size=11, color="#57606A")),
+                        tickfont=dict(size=10, color="#57606A"),
                         thickness=10,
                         len=0.5,
-                        bgcolor="rgba(0,0,0,0)",
+                        bgcolor="rgba(255,255,255,0)",
                         borderwidth=0,
                         x=1.0,
                     ),
                     hoverlabel=dict(
-                        bgcolor="#1C2333",
-                        bordercolor="#388BFD",
-                        font=dict(family="Sora, sans-serif", size=12, color="#E6EDF3"),
+                        bgcolor="#F6F8FA",
+                        bordercolor="#0969DA",
+                        font=dict(family="Sora, sans-serif", size=12, color="#1F2328"),
                         align="left",
                     ),
                 )
@@ -601,12 +601,12 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     orientation='h',
                     marker=dict(
                         color=df_reg['processos'],
-                        colorscale=[[0,'#1C3F80'],[1,'#58A6FF']],
+                        colorscale=[[0,'#BDDDF5'],[1,'#0550AE']],
                         showscale=False,
                     ),
                     text=df_reg['processos'].apply(lambda v: f"{v:,}".replace(",",".")),
                     textposition='outside',
-                    textfont=dict(size=10, color="#C9D1D9"),
+                    textfont=dict(size=10, color="#1F2328"),
                     hovertemplate="<b>%{y}</b><br>%{x:,} processos<extra></extra>",
                 ))
                 fig_reg.update_layout(**layout_plotly("Processos por Região"))
@@ -663,12 +663,12 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 orientation='h',
                 marker=dict(
                     color=df_comarca['qtd'],
-                    colorscale=[[0,'#1C3F80'],[0.5,'#388BFD'],[1,'#58A6FF']],
+                    colorscale=[[0,'#BDDDF5'],[0.5,'#0969DA'],[1,'#0550AE']],
                     showscale=False,
                 ),
                 text=df_comarca.apply(lambda r: f"{r['qtd']:,}  ({r['pct']}%)".replace(",","."), axis=1),
                 textposition='outside',
-                textfont=dict(size=10, color="#C9D1D9"),
+                textfont=dict(size=10, color="#1F2328"),
                 hovertemplate="<b>%{y}</b><br>%{x:,} processos<extra></extra>",
             ))
             fig_comarca.update_layout(**layout_plotly("Volume por Comarca (Top 20)"))
@@ -683,7 +683,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 path=['comarca'],
                 values='qtd',
                 color='qtd',
-                color_continuous_scale=[[0,'#0C2D5A'],[0.5,'#388BFD'],[1,'#A5D3FF']],
+                color_continuous_scale=[[0,'#D6ECFA'],[0.5,'#0969DA'],[1,'#0550AE']],
                 hover_data={'pct': True},
                 custom_data=['pct'],
             )
@@ -730,8 +730,8 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
     # ABA 4 — PERFIL DAS DEMANDAS
     with aba4:
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(28,63,128,0.15), rgba(88,166,255,0.08)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #388BFD;'>
-            <span style='font-size: 0.78rem; color: #8B949E;'>
+        <div style='background: linear-gradient(135deg, rgba(9,105,218,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #0969DA;'>
+            <span style='font-size: 0.78rem; color: #57606A;'>
                 📋 Perfil descritivo das ações judiciais trabalhistas — assuntos primários e classes processuais
                 (Rito Ordinário, Sumaríssimo e Sumário) — variáveis relevantes para a análise da judicialização.
             </span>
@@ -756,7 +756,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     marker=dict(color=COR_ROXO, opacity=0.85),
                     text=df_ass['qtd'].apply(lambda v: f"{v:,}".replace(",",".")),
                     textposition='outside',
-                    textfont=dict(size=10, color="#C9D1D9"),
+                    textfont=dict(size=10, color="#1F2328"),
                     hovertemplate="<b>%{y}</b><br>%{x:,} processos<extra></extra>",
                 ))
                 fig_ass.update_layout(**layout_plotly("Top 15 Assuntos Primários"))
@@ -780,7 +780,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     marker=dict(
                         colors=[COR_PRIMARIA, COR_ROXO, COR_CIANO, COR_LARANJA, COR_SECUNDARIA,
                                  COR_ALERTA, COR_PERIGO, "#E879F9", "#94A3B8"],
-                        line=dict(color='#0D1117', width=2),
+                        line=dict(color='#FFFFFF', width=2),
                     ),
                     hovertemplate="<b>%{label}</b><br>%{value:,}<br>%{percent}<extra></extra>",
                     textinfo='percent',
@@ -792,7 +792,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     annotations=[dict(
                         text=f"<b>{df_f.shape[0]:,}</b><br>total".replace(",","."),
                         x=0.5, y=0.5, showarrow=False,
-                        font=dict(size=14, color="#C9D1D9", family="Sora"),
+                        font=dict(size=14, color="#1F2328", family="Sora"),
                     )],
                 )
                 st.plotly_chart(fig_donut, use_container_width=True)
@@ -838,7 +838,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     marker=dict(color=cores_classe[:len(df_classe)]),
                     text=df_classe.apply(lambda r: f"{r['qtd']:,} ({r['pct']}%)".replace(",","."), axis=1),
                     textposition='outside',
-                    textfont=dict(size=11, color="#C9D1D9"),
+                    textfont=dict(size=11, color="#1F2328"),
                     hovertemplate="<b>%{x}</b><br>%{y:,} processos<extra></extra>",
                 ))
                 fig_classe.update_layout(**layout_plotly("Volume por Classe Processual"))
@@ -852,7 +852,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     hole=0.55,
                     marker=dict(
                         colors=cores_classe[:len(df_classe)],
-                        line=dict(color='#0D1117', width=2),
+                        line=dict(color='#FFFFFF', width=2),
                     ),
                     hovertemplate="<b>%{label}</b><br>%{value:,}<br>%{percent}<extra></extra>",
                     textinfo='label+percent',
@@ -879,8 +879,8 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
     # ABA 5 — ESTRUTURA JUDICIAL
     with aba5:
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(28,63,128,0.15), rgba(88,166,255,0.08)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #388BFD;'>
-            <span style='font-size: 0.78rem; color: #8B949E;'>
+        <div style='background: linear-gradient(135deg, rgba(9,105,218,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #0969DA;'>
+            <span style='font-size: 0.78rem; color: #57606A;'>
                 🏛️ Estrutura dos órgãos julgadores da Justiça do Trabalho no RN — distribuição de processos
                 por vara, formato e sistema processual.
             </span>
@@ -905,12 +905,12 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     orientation='h',
                     marker=dict(
                         color=df_vara_top['qtd'],
-                        colorscale=[[0,'#1C3F80'],[0.5,'#388BFD'],[1,'#58A6FF']],
+                        colorscale=[[0,'#BDDDF5'],[0.5,'#0969DA'],[1,'#0550AE']],
                         showscale=False,
                     ),
                     text=df_vara_top.apply(lambda r: f"{r['qtd']:,} ({r['pct']}%)".replace(",","."), axis=1),
                     textposition='outside',
-                    textfont=dict(size=10, color="#C9D1D9"),
+                    textfont=dict(size=10, color="#1F2328"),
                     hovertemplate="<b>%{y}</b><br>%{x:,} processos<extra></extra>",
                 ))
                 fig_vara.update_layout(**layout_plotly("Ranking de Varas do Trabalho por Volume"))
@@ -933,7 +933,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     marker=dict(
                         colors=[COR_PRIMARIA, COR_ROXO, COR_CIANO, COR_LARANJA, COR_SECUNDARIA,
                                  COR_ALERTA, COR_PERIGO, "#E879F9", "#94A3B8", "#F0ABFC", "#6B7280"],
-                        line=dict(color='#0D1117', width=2),
+                        line=dict(color='#FFFFFF', width=2),
                     ),
                     hovertemplate="<b>%{label}</b><br>%{value:,}<br>%{percent}<extra></extra>",
                     textinfo='percent',
@@ -945,7 +945,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     annotations=[dict(
                         text=f"<b>{df_f['orgaoJulgador_nome'].nunique()}</b><br>varas",
                         x=0.5, y=0.5, showarrow=False,
-                        font=dict(size=14, color="#C9D1D9", family="Sora"),
+                        font=dict(size=14, color="#1F2328", family="Sora"),
                     )],
                 )
                 st.plotly_chart(fig_vara_pie, use_container_width=True)
@@ -998,7 +998,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 ),
                 text=df_sis['qtd'].apply(lambda v: f"{v:,}".replace(",",".")),
                 textposition='outside',
-                textfont=dict(size=11, color="#C9D1D9"),
+                textfont=dict(size=11, color="#1F2328"),
                 hovertemplate="<b>%{x}</b><br>%{y:,} processos<extra></extra>",
             ))
             fig_sis.update_layout(**layout_plotly("Volume por Sistema"))
@@ -1039,7 +1039,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 fig_hist = go.Figure(go.Histogram(
                     x=df_val_clip,
                     nbinsx=50,
-                    marker=dict(color=COR_CIANO, opacity=0.8, line=dict(color='#0D1117', width=0.5)),
+                    marker=dict(color=COR_CIANO, opacity=0.8, line=dict(color='#FFFFFF', width=0.5)),
                     hovertemplate="R$ %{x:,.0f}<br>%{y} processos<extra></extra>",
                 ))
                 fig_hist.update_layout(**layout_plotly("Distribuição do Valor da Causa (até P95)"))
@@ -1056,7 +1056,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     marker=dict(color=COR_CIANO, opacity=0.8),
                     text=df_vc_sis['mediana'].apply(lambda v: f"R$ {v:,.0f}"),
                     textposition='outside',
-                    textfont=dict(size=10, color="#C9D1D9"),
+                    textfont=dict(size=10, color="#1F2328"),
                     hovertemplate="<b>%{y}</b><br>Mediana: R$ %{x:,.0f}<extra></extra>",
                 ))
                 fig_vc.update_layout(**layout_plotly("Mediana do Valor da Causa por Sistema"))
@@ -1109,8 +1109,8 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         import re as _re
 
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(188,140,255,0.15), rgba(88,166,255,0.08)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #BC8CFF;'>
-            <span style='font-size: 0.78rem; color: #8B949E;'>
+        <div style='background: linear-gradient(135deg, rgba(130,80,223,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #8250DF;'>
+            <span style='font-size: 0.78rem; color: #57606A;'>
                 📋 Lista completa de todos os assuntos encontrados nos processos. Cada processo pode conter múltiplos
                 assuntos separados por <code>|</code> na coluna <code>assuntos_str</code>. A tabela abaixo explode
                 todos os assuntos individuais com seus respectivos códigos e frequências.
@@ -1202,8 +1202,8 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         import re as _re8
 
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(88,166,255,0.15), rgba(188,140,255,0.10)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #58A6FF;'>
-            <span style='font-size: 0.78rem; color: #8B949E;'>
+        <div style='background: linear-gradient(135deg, rgba(9,105,218,0.06), rgba(130,80,223,0.04)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #0969DA;'>
+            <span style='font-size: 0.78rem; color: #57606A;'>
                 📊 Análise da evolução temporal dos assuntos processuais agrupados por <b>semestre</b>.
                 Selecione os assuntos de interesse para visualizar tendências, picos e vales ao longo do período 2020–2024.
                 Os dados são extraídos da coluna <code>assuntos_str</code>, explodindo múltiplos assuntos por processo.
@@ -1321,7 +1321,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                             mode='lines+markers',
                             name=assunto[:40],
                             line=dict(color=cor_linha, width=2.5),
-                            marker=dict(size=7, color=cor_linha, line=dict(color='#0D1117', width=1.5)),
+                            marker=dict(size=7, color=cor_linha, line=dict(color='#FFFFFF', width=1.5)),
                             hovertemplate=f"<b>{assunto[:40]}</b><br>%{{x}}: %{{y:,}}<extra></extra>",
                         ))
                         # Marcadores de picos
@@ -1329,7 +1329,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                             fig_evo.add_trace(go.Scatter(
                                 x=[sems[p] for p in picos], y=[valores[p] for p in picos],
                                 mode='markers+text',
-                                marker=dict(symbol='triangle-up', size=14, color=COR_SECUNDARIA, line=dict(color='#0D1117', width=1)),
+                                marker=dict(symbol='triangle-up', size=14, color=COR_SECUNDARIA, line=dict(color='#FFFFFF', width=1)),
                                 text=[f"▲ {fmt_num(valores[p])}" for p in picos],
                                 textposition='top center', textfont=dict(size=9, color=COR_SECUNDARIA),
                                 showlegend=False,
@@ -1340,7 +1340,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                             fig_evo.add_trace(go.Scatter(
                                 x=[sems[v] for v in vales], y=[valores[v] for v in vales],
                                 mode='markers+text',
-                                marker=dict(symbol='triangle-down', size=14, color=COR_PERIGO, line=dict(color='#0D1117', width=1)),
+                                marker=dict(symbol='triangle-down', size=14, color=COR_PERIGO, line=dict(color='#FFFFFF', width=1)),
                                 text=[f"▼ {fmt_num(valores[v])}" for v in vales],
                                 textposition='bottom center', textfont=dict(size=9, color=COR_PERIGO),
                                 showlegend=False,
@@ -1364,13 +1364,13 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                         z=df_heat_pivot.values,
                         x=[str(c) for c in df_heat_pivot.columns],
                         y=labels_y,
-                        colorscale=[[0, '#0D1F36'], [0.3, '#1C3F80'], [0.6, '#388BFD'], [1, '#A5D3FF']],
+                        colorscale=[[0, '#F0F4F8'], [0.3, '#BDDDF5'], [0.6, '#4BA0DC'], [1, '#0550AE']],
                         hovertemplate="<b>%{y}</b><br>%{x}: %{z:,.0f} menções<extra></extra>",
                         showscale=True,
-                        colorbar=dict(tickfont=dict(color='#8B949E', size=10), outlinewidth=0),
+                        colorbar=dict(tickfont=dict(color='#57606A', size=10), outlinewidth=0),
                         text=df_heat_pivot.values.astype(int),
                         texttemplate='%{text:,}',
-                        textfont=dict(size=9, color='#C9D1D9'),
+                        textfont=dict(size=9, color='#1F2328'),
                     ))
                     h_heat = max(350, len(assuntos_evo_sel) * 35 + 100)
                     fig_heat.update_layout(**layout_plotly("Volume de Menções por Assunto × Semestre"))
@@ -1401,12 +1401,12 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                                 name=assunto[:35],
                                 marker_color=CORES_MULTI[i % len(CORES_MULTI)],
                                 text=dv['variacao'].apply(lambda v: f"{v:+.1f}%"),
-                                textposition='outside', textfont=dict(size=8, color='#C9D1D9'),
+                                textposition='outside', textfont=dict(size=8, color='#1F2328'),
                                 hovertemplate=f"<b>{assunto[:35]}</b><br>%{{x}}: %{{y:+.1f}}%<extra></extra>",
                             ))
                         fig_var.update_layout(**layout_plotly("Variação (%) entre Semestres Consecutivos"))
                         fig_var.update_layout(height=450, barmode='group', xaxis_tickangle=45)
-                        fig_var.add_hline(y=0, line_dash='dash', line_color='#21262D')
+                        fig_var.add_hline(y=0, line_dash='dash', line_color='#D0D7DE')
                         st.plotly_chart(fig_var, use_container_width=True)
 
                     # ═══ RESUMO ESTATÍSTICO ═══

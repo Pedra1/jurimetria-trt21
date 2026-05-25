@@ -9,6 +9,8 @@ Gera um relatório em PDF com qualidade de publicação, contendo:
   - Heatmap de assuntos × semestres
   - Páginas individuais por assunto (linha + variação %)
 
+Tema: Claro / Acadêmico (fundo branco)
+
 Dependências: pandas, matplotlib, glob, re, os
 Todos os textos em Português (Brasil).
 """
@@ -27,32 +29,32 @@ from matplotlib.backends.backend_pdf import PdfPages
 import pandas as pd
 
 # ──────────────────────────────────────────────
-# Paleta e constantes de estilo (tema escuro)
+# Paleta e constantes de estilo (tema claro / acadêmico)
 # ──────────────────────────────────────────────
 _CORES_ASSUNTOS = [
-    "#58A6FF", "#BC8CFF", "#39D3F0", "#FF7B54", "#3FB950",
-    "#D29922", "#F85149", "#E879F9", "#94A3B8", "#F0ABFC",
+    "#0969DA", "#8250DF", "#0598BC", "#BC4C00", "#1A7F37",
+    "#9A6700", "#CF222E", "#BF3989", "#6E7781", "#D4A0D9",
 ]
-_BG_FIGURA = "#0D1117"
-_BG_EIXO = "#161B22"
-_COR_TITULO = "#C9D1D9"
-_COR_ROTULO = "#8B949E"
-_COR_GRADE = "#21262D"
+_BG_FIGURA = "#FFFFFF"
+_BG_EIXO = "#F6F8FA"
+_COR_TITULO = "#1F2328"
+_COR_ROTULO = "#57606A"
+_COR_GRADE = "#D0D7DE"
 _FONTE = "DejaVu Sans"
 _DPI = 150
 _TAM_FIGURA = (11.69, 8.27)  # A4 paisagem
 
-# Cores do heatmap
-_HEATMAP_ESCURO = "#0D1F36"
-_HEATMAP_CLARO = "#A5D3FF"
+# Cores do heatmap (claro → escuro em fundo branco)
+_HEATMAP_CLARO = "#F0F4F8"
+_HEATMAP_ESCURO = "#0969DA"
 
 
 # ──────────────────────────────────────────────
 # Funções auxiliares
 # ──────────────────────────────────────────────
 
-def _aplicar_tema_escuro(fig, ax):
-    """Aplica o tema escuro padrão à figura e ao eixo."""
+def _aplicar_tema_claro(fig, ax):
+    """Aplica o tema claro/acadêmico padrão à figura e ao eixo."""
     fig.patch.set_facecolor(_BG_FIGURA)
     ax.set_facecolor(_BG_EIXO)
     ax.tick_params(colors=_COR_ROTULO, which="both")
@@ -200,7 +202,7 @@ def _pagina_capa(pdf, total_processos, total_assuntos_analisados):
         0.5, 0.52,
         "TRT 21ª Região — Base Ulisses (2020–2024)",
         ha="center", va="center",
-        fontsize=18, color="#58A6FF", fontfamily=_FONTE,
+        fontsize=18, color="#0969DA", fontfamily=_FONTE,
     )
     # Data de geração
     data_geracao = datetime.now().strftime("%d/%m/%Y às %H:%M")
@@ -214,7 +216,7 @@ def _pagina_capa(pdf, total_processos, total_assuntos_analisados):
     fig.patches.append(
         plt.Rectangle(
             (0.25, 0.36), 0.50, 0.003,
-            transform=fig.transFigure, facecolor="#58A6FF",
+            transform=fig.transFigure, facecolor="#0969DA",
             alpha=0.5, clip_on=False,
         )
     )
@@ -239,7 +241,7 @@ def _pagina_capa(pdf, total_processos, total_assuntos_analisados):
 def _pagina_tabela_frequencia(pdf, pivot, total_ocorrencias):
     """Página 2 — Tabela de frequência dos assuntos selecionados."""
     fig, ax = plt.subplots(figsize=_TAM_FIGURA)
-    _aplicar_tema_escuro(fig, ax)
+    _aplicar_tema_claro(fig, ax)
     ax.axis("off")
     ax.set_title(
         "Tabela de Frequência dos Assuntos Selecionados",
@@ -263,11 +265,11 @@ def _pagina_tabela_frequencia(pdf, pivot, total_ocorrencias):
 
     colunas = ["Assunto", "Frequência Absoluta", "% do Total"]
 
-    # Cores alternadas
+    # Cores alternadas (tema claro)
     n_linhas = len(dados_tabela)
     cores_celulas = []
     for i in range(n_linhas):
-        cor_fundo = "#1C2128" if i % 2 == 0 else "#161B22"
+        cor_fundo = "#F6F8FA" if i % 2 == 0 else "#FFFFFF"
         cores_celulas.append([cor_fundo] * 3)
 
     tabela = ax.table(
@@ -282,7 +284,7 @@ def _pagina_tabela_frequencia(pdf, pivot, total_ocorrencias):
     # Estilizar cabeçalho
     for j in range(3):
         celula = tabela[0, j]
-        celula.set_facecolor("#21262D")
+        celula.set_facecolor("#E8ECF0")
         celula.set_text_props(
             color=_COR_TITULO, fontweight="bold", fontfamily=_FONTE
         )
@@ -297,7 +299,7 @@ def _pagina_tabela_frequencia(pdf, pivot, total_ocorrencias):
             celula.set_edgecolor(_COR_GRADE)
             if j == 0:  # Coluna Assunto alinhada à esquerda
                 celula.set_text_props(
-                    color=_COR_ROTULO, fontfamily=_FONTE, ha="left"
+                    color=_COR_TITULO, fontfamily=_FONTE, ha="left"
                 )
 
     # Ajustar larguras
@@ -312,7 +314,7 @@ def _pagina_tabela_frequencia(pdf, pivot, total_ocorrencias):
 def _pagina_evolucao_geral(pdf, pivot, semestres):
     """Página 3 — Gráfico de evolução semestral (todos sobrepostos)."""
     fig, ax = plt.subplots(figsize=_TAM_FIGURA)
-    _aplicar_tema_escuro(fig, ax)
+    _aplicar_tema_claro(fig, ax)
 
     ax.set_title(
         "Evolução Semestral dos Assuntos Selecionados",
@@ -352,7 +354,7 @@ def _pagina_evolucao_geral(pdf, pivot, semestres):
     # Legenda fora do gráfico
     ax.legend(
         loc="upper left", bbox_to_anchor=(1.02, 1.0),
-        fontsize=8, frameon=True, facecolor=_BG_EIXO,
+        fontsize=8, frameon=True, facecolor=_BG_FIGURA,
         edgecolor=_COR_GRADE, labelcolor=_COR_ROTULO,
     )
 
@@ -364,7 +366,7 @@ def _pagina_evolucao_geral(pdf, pivot, semestres):
 def _pagina_heatmap(pdf, pivot, semestres):
     """Página 4 — Heatmap de assuntos × semestres."""
     fig, ax = plt.subplots(figsize=_TAM_FIGURA)
-    _aplicar_tema_escuro(fig, ax)
+    _aplicar_tema_claro(fig, ax)
 
     ax.set_title(
         "Mapa de Calor — Distribuição Semestral por Assunto",
@@ -376,10 +378,10 @@ def _pagina_heatmap(pdf, pivot, semestres):
     n_assuntos = dados.shape[0]
     n_semestres = dados.shape[1]
 
-    # Colormap personalizado
+    # Colormap personalizado (claro → escuro para fundo branco)
     from matplotlib.colors import LinearSegmentedColormap
     cmap_custom = LinearSegmentedColormap.from_list(
-        "heatmap_trt", [_HEATMAP_ESCURO, _HEATMAP_CLARO]
+        "heatmap_trt", [_HEATMAP_CLARO, _HEATMAP_ESCURO]
     )
 
     im = ax.imshow(dados, aspect="auto", cmap=cmap_custom, interpolation="nearest")
@@ -401,7 +403,7 @@ def _pagina_heatmap(pdf, pivot, semestres):
     for i in range(n_assuntos):
         for j in range(n_semestres):
             valor = int(dados[i, j])
-            cor_texto = "#0D1117" if dados[i, j] > vmax * 0.6 else _COR_TITULO
+            cor_texto = "#FFFFFF" if dados[i, j] > vmax * 0.6 else _COR_TITULO
             ax.text(
                 j, i, str(valor),
                 ha="center", va="center",
@@ -425,7 +427,7 @@ def _pagina_assunto_individual(pdf, assunto, semestres, valores, cor):
 
     # ── Gráfico de linha (parte superior) ──
     ax1 = fig.add_axes([0.08, 0.48, 0.84, 0.40])
-    _aplicar_tema_escuro(fig, ax1)
+    _aplicar_tema_claro(fig, ax1)
 
     # Truncar título se muito longo
     titulo_assunto = assunto if len(assunto) <= 70 else assunto[:67] + "..."
@@ -447,7 +449,7 @@ def _pagina_assunto_individual(pdf, assunto, semestres, valores, cor):
             f"▲ Pico: {val_p}",
             (x[idx_p], val_p),
             textcoords="offset points", xytext=(0, 14),
-            fontsize=9, color="#3FB950", ha="center",
+            fontsize=9, color="#1A7F37", ha="center",
             fontweight="bold", fontfamily=_FONTE,
         )
     for idx_v, val_v in vales.items():
@@ -455,7 +457,7 @@ def _pagina_assunto_individual(pdf, assunto, semestres, valores, cor):
             f"▼ Vale: {val_v}",
             (x[idx_v], val_v),
             textcoords="offset points", xytext=(0, -18),
-            fontsize=9, color="#F85149", ha="center",
+            fontsize=9, color="#CF222E", ha="center",
             fontweight="bold", fontfamily=_FONTE,
         )
 
@@ -466,7 +468,7 @@ def _pagina_assunto_individual(pdf, assunto, semestres, valores, cor):
 
     # ── Gráfico de barras de variação % (parte inferior) ──
     ax2 = fig.add_axes([0.08, 0.12, 0.84, 0.28])
-    _aplicar_tema_escuro(fig, ax2)
+    _aplicar_tema_claro(fig, ax2)
     ax2.set_title(
         "Variação Semestral (%)",
         fontsize=13, fontweight="bold", color=_COR_TITULO,
@@ -483,7 +485,7 @@ def _pagina_assunto_individual(pdf, assunto, semestres, valores, cor):
         variacoes.append(var)
 
     x_var = list(range(1, len(semestres)))
-    cores_barra = ["#3FB950" if v >= 0 else "#F85149" for v in variacoes]
+    cores_barra = ["#1A7F37" if v >= 0 else "#CF222E" for v in variacoes]
 
     if variacoes:
         ax2.bar(x_var, variacoes, color=cores_barra, width=0.6, zorder=3)
@@ -523,11 +525,11 @@ def _pagina_assunto_individual(pdf, assunto, semestres, valores, cor):
     fig.text(
         0.50, 0.44, resumo,
         ha="center", va="center",
-        fontsize=10, color="#58A6FF",
+        fontsize=10, color="#0969DA",
         fontfamily=_FONTE,
         bbox=dict(
             boxstyle="round,pad=0.4",
-            facecolor="#1C2128",
+            facecolor="#F0F4F8",
             edgecolor=_COR_GRADE,
         ),
     )
