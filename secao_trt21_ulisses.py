@@ -14,25 +14,25 @@ from config import *
 # DICIONÁRIO GEOGRÁFICO — COMARCAS TRT21/RN
 # ─────────────────────────────────────────────
 COMARCAS_GEO = {
-    "Natal":                    {"lat": -5.7945,  "lon": -35.2110, "varas": 13, "regiao": "Grande Natal"},
-    "Parnamirim":               {"lat": -5.9148,  "lon": -35.2633, "varas": 1,  "regiao": "Grande Natal"},
-    "São Gonçalo do Amarante":  {"lat": -5.7939,  "lon": -35.3314, "varas": 1,  "regiao": "Grande Natal"},
-    "Ceará-Mirim":              {"lat": -5.6381,  "lon": -35.4253, "varas": 1,  "regiao": "Grande Natal"},
-    "Macaíba":                  {"lat": -5.8569,  "lon": -35.3564, "varas": 1,  "regiao": "Grande Natal"},
-    "Mossoró":                  {"lat": -5.1879,  "lon": -37.3441, "varas": 4,  "regiao": "Oeste"},
-    "Macau":                    {"lat": -5.1101,  "lon": -36.6322, "varas": 2,  "regiao": "Salineira"},
-    "Assu":                     {"lat": -5.5719,  "lon": -36.9075, "varas": 1,  "regiao": "Vale do Açu"},
-    "Pau dos Ferros":           {"lat": -6.1108,  "lon": -38.2042, "varas": 1,  "regiao": "Alto Oeste"},
-    "Caicó":                    {"lat": -6.4583,  "lon": -37.0972, "varas": 1,  "regiao": "Seridó"},
-    "Currais Novos":            {"lat": -6.2597,  "lon": -36.5158, "varas": 1,  "regiao": "Seridó"},
-    "Santa Cruz":               {"lat": -6.2239,  "lon": -35.8244, "varas": 1,  "regiao": "Trairi"},
-    "Goianinha":                {"lat": -6.2692,  "lon": -35.2011, "varas": 1,  "regiao": "Litoral Sul"},
-    "Nova Cruz":                {"lat": -6.2503,  "lon": -35.4253, "varas": 1,  "regiao": "Agreste"},
-    "Caraúbas":                 {"lat": -5.7842,  "lon": -37.5567, "varas": 1,  "regiao": "Oeste"},
-    "Apodi":                    {"lat": -5.6597,  "lon": -37.7958, "varas": 1,  "regiao": "Oeste"},
-    "João Câmara":              {"lat": -5.5392,  "lon": -35.8136, "varas": 1,  "regiao": "Agreste"},
-    "São Paulo do Potengi":     {"lat": -5.8992,  "lon": -35.6419, "varas": 1,  "regiao": "Agreste"},
-    "Açu":                      {"lat": -5.5719,  "lon": -36.9075, "varas": 1,  "regiao": "Vale do Açu"},
+    "Natal": {"lat": -5.7945, "lon": -35.2110, "varas": 13, "regiao": "Grande Natal"},
+    "Parnamirim": {"lat": -5.9148, "lon": -35.2633, "varas": 1, "regiao": "Grande Natal"},
+    "São Gonçalo do Amarante": {"lat": -5.7939, "lon": -35.3314, "varas": 1, "regiao": "Grande Natal"},
+    "Ceará-Mirim": {"lat": -5.6381, "lon": -35.4253, "varas": 1, "regiao": "Grande Natal"},
+    "Macaíba": {"lat": -5.8569, "lon": -35.3564, "varas": 1, "regiao": "Grande Natal"},
+    "Mossoró": {"lat": -5.1879, "lon": -37.3441, "varas": 4, "regiao": "Oeste"},
+    "Macau": {"lat": -5.1101, "lon": -36.6322, "varas": 2, "regiao": "Salineira"},
+    "Assu": {"lat": -5.5719, "lon": -36.9075, "varas": 1, "regiao": "Vale do Açu"},
+    "Pau dos Ferros": {"lat": -6.1108, "lon": -38.2042, "varas": 1, "regiao": "Alto Oeste"},
+    "Caicó": {"lat": -6.4583, "lon": -37.0972, "varas": 1, "regiao": "Seridó"},
+    "Currais Novos": {"lat": -6.2597, "lon": -36.5158, "varas": 1, "regiao": "Seridó"},
+    "Santa Cruz": {"lat": -6.2239, "lon": -35.8244, "varas": 1, "regiao": "Trairi"},
+    "Goianinha": {"lat": -6.2692, "lon": -35.2011, "varas": 1, "regiao": "Litoral Sul"},
+    "Nova Cruz": {"lat": -6.2503, "lon": -35.4253, "varas": 1, "regiao": "Agreste"},
+    "Caraúbas": {"lat": -5.7842, "lon": -37.5567, "varas": 1, "regiao": "Oeste"},
+    "Apodi": {"lat": -5.6597, "lon": -37.7958, "varas": 1, "regiao": "Oeste"},
+    "João Câmara": {"lat": -5.5392, "lon": -35.8136, "varas": 1, "regiao": "Agreste"},
+    "São Paulo do Potengi": {"lat": -5.8992, "lon": -35.6419, "varas": 1, "regiao": "Agreste"},
+    "Açu": {"lat": -5.5719, "lon": -36.9075, "varas": 1, "regiao": "Vale do Açu"},
 }
 
 import unicodedata
@@ -210,7 +210,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
     cor = CORES_TRIBUNAL["TRT21"]["primaria"]
     escala = CORES_TRIBUNAL["TRT21"]["escala"]
 
-    st.caption("⚖️ Observatório dos Direitos Sociais do Semiárido · UFERSA")
+    st.caption(" Observatório dos Direitos Sociais do Semiárido · UFERSA")
     st.title("TRT21 — Base Ulisses")
     st.markdown("Análise quantitativa da judicialização trabalhista · TRT 21ª Região · Base de dados capa · 2020–2024")
 
@@ -220,20 +220,20 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
 
     # ── Filtros na sidebar ──
     with st.sidebar:
-        st.markdown("**📅 PERÍODO**")
+        st.markdown("** PERÍODO**")
         anos_disp = sorted(df_raw['ano'].dropna().unique().tolist())
         anos_sel = st.multiselect("Anos", options=anos_disp, default=anos_disp, label_visibility="collapsed", key="ulisses_anos")
 
-        st.markdown("**📍 COMARCA**")
+        st.markdown("** COMARCA**")
         comarcas_disp = sorted(df_raw['municipio_comarca'].dropna().unique().tolist())
         comarcas_sel = st.multiselect("Comarcas", options=comarcas_disp, default=comarcas_disp, label_visibility="collapsed", key="ulisses_comarcas")
 
-        st.markdown("**💻 SISTEMA**")
+        st.markdown("** SISTEMA**")
         sistemas_disp = sorted(df_raw['sistema_nome'].dropna().unique().tolist())
         sistemas_sel = st.multiselect("Sistemas", options=sistemas_disp, default=sistemas_disp, label_visibility="collapsed", key="ulisses_sistemas")
 
         if 'assunto_primario_nome' in df_raw.columns:
-            st.markdown("**📂 ASSUNTO (Top 20)**")
+            st.markdown("** ASSUNTO (Top 20)**")
             top_assuntos = df_raw['assunto_primario_nome'].value_counts().head(20).index.tolist()
             assuntos_sel = st.multiselect("Assuntos", options=top_assuntos, default=[], label_visibility="collapsed", key="ulisses_assuntos")
         else:
@@ -272,14 +272,14 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
 
     # ── Abas ──
     aba1, aba2, aba3, aba4, aba5, aba6, aba7, aba8 = st.tabs([
-        "📈  Evolução Temporal",
-        "🗺️  Mapa Interativo",
-        "📍  Distribuição Geográfica",
-        "📂  Perfil das Demandas",
-        "⚖️  Estrutura Judicial",
-        "🔍  Explorar Dados",
-        "📋  Lista de Assuntos",
-        "📊  Evolução de Assuntos",
+        " Evolução Temporal",
+        " Mapa Interativo",
+        " Distribuição Geográfica",
+        " Perfil das Demandas",
+        " Estrutura Judicial",
+        " Explorar Dados",
+        " Lista de Assuntos",
+        " Evolução de Assuntos",
     ])
 
     # ═══════════ ABA 1: EVOLUÇÃO TEMPORAL ═══════════
@@ -385,14 +385,14 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     else "—"
                 )
                 rows.append({
-                    "comarca":    row['comarca'],
-                    "nome":       geo["nome_geo"],
-                    "processos":  int(row['processos']),
-                    "pct":        round(row['processos'] / total_proc * 100, 1),
-                    "lat":        geo["lat"],
-                    "lon":        geo["lon"],
-                    "varas":      geo["varas"],
-                    "regiao":     geo["regiao"],
+                    "comarca": row['comarca'],
+                    "nome": geo["nome_geo"],
+                    "processos": int(row['processos']),
+                    "pct": round(row['processos'] / total_proc * 100, 1),
+                    "lat": geo["lat"],
+                    "lon": geo["lon"],
+                    "varas": geo["varas"],
+                    "regiao": geo["regiao"],
                     "top_assunto": str(top_ass)[:45],
                 })
 
@@ -403,10 +403,10 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         else:
             # ── KPIs ──
             m1, m2, m3, m4 = st.columns(4)
-            m1.metric("Comarcas no mapa",   len(df_geo))
-            m2.metric("Comarca líder",      df_geo.loc[df_geo['processos'].idxmax(), 'nome'])
+            m1.metric("Comarcas no mapa", len(df_geo))
+            m2.metric("Comarca líder", df_geo.loc[df_geo['processos'].idxmax(), 'nome'])
             m3.metric("Processos na líder", f"{df_geo['processos'].max():,}".replace(",","."))
-            m4.metric("Regiões cobertas",   df_geo['regiao'].nunique())
+            m4.metric("Regiões cobertas", df_geo['regiao'].nunique())
 
             st.markdown("---")
 
@@ -490,12 +490,12 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     featureidkey='properties.id',
                     color='processos',
                     color_continuous_scale=[
-                        [0.0,  "#F0F4F8"],
+                        [0.0, "#F0F4F8"],
                         [0.15, "#BDDDF5"],
                         [0.35, "#2958B3"],
                         [0.55, "#4BA0DC"],
                         [0.75, "#0969DA"],
-                        [1.0,  "#A5D3FF"],
+                        [1.0, "#A5D3FF"],
                     ],
                     mapbox_style="carto-positron",
                     zoom=7.0,
@@ -573,7 +573,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
 
                 st.plotly_chart(fig_mapa, use_container_width=True)
 
-                st.caption("🗺️ Mapa do Rio Grande do Norte · Municípios coloridos pelo volume de processos da comarca · Passe o mouse para ver detalhes do tribunal.")
+                st.caption(" Mapa do Rio Grande do Norte · Municípios coloridos pelo volume de processos da comarca · Passe o mouse para ver detalhes do tribunal.")
 
             st.markdown("---")
 
@@ -666,7 +666,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     colorscale=[[0,'#BDDDF5'],[0.5,'#0969DA'],[1,'#0550AE']],
                     showscale=False,
                 ),
-                text=df_comarca.apply(lambda r: f"{r['qtd']:,}  ({r['pct']}%)".replace(",","."), axis=1),
+                text=df_comarca.apply(lambda r: f"{r['qtd']:,} ({r['pct']}%)".replace(",","."), axis=1),
                 textposition='outside',
                 textfont=dict(size=10, color="#1F2328"),
                 hovertemplate="<b>%{y}</b><br>%{x:,} processos<extra></extra>",
@@ -732,14 +732,14 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         st.markdown("""
         <div style='background: linear-gradient(135deg, rgba(9,105,218,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #0969DA;'>
             <span style='font-size: 0.78rem; color: #57606A;'>
-                📋 Perfil descritivo das ações judiciais trabalhistas — assuntos primários e classes processuais
+                Perfil descritivo das ações judiciais trabalhistas — assuntos primários e classes processuais
                 (Rito Ordinário, Sumaríssimo e Sumário) — variáveis relevantes para a análise da judicialização.
             </span>
         </div>
         """, unsafe_allow_html=True)
 
         # ── Seção 1: Assuntos Primários ──
-        st.markdown("### 📂 Assuntos Primários")
+        st.markdown("### Assuntos Primários")
         col_a, col_b = st.columns(2)
 
         with col_a:
@@ -821,7 +821,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
 
         # ── Seção 2: Classes Processuais (Ritos) ──
         if 'classe_nome' in df_f.columns:
-            st.markdown("### ⚖️ Classes Processuais (Ritos)")
+            st.markdown("### Classes Processuais (Ritos)")
             st.caption("A classificação por rito (Ordinário, Sumaríssimo, Sumário) indica o tipo de procedimento e o valor/complexidade da causa.")
 
             col_c1, col_c2 = st.columns(2)
@@ -881,14 +881,14 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         st.markdown("""
         <div style='background: linear-gradient(135deg, rgba(9,105,218,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #0969DA;'>
             <span style='font-size: 0.78rem; color: #57606A;'>
-                🏛️ Estrutura dos órgãos julgadores da Justiça do Trabalho no RN — distribuição de processos
+                Estrutura dos órgãos julgadores da Justiça do Trabalho no RN — distribuição de processos
                 por vara, formato e sistema processual.
             </span>
         </div>
         """, unsafe_allow_html=True)
 
         # ── Seção 1: Distribuição por Órgão Julgador (Varas) ──
-        st.markdown("### 🏛️ Órgãos Julgadores (Varas do Trabalho)")
+        st.markdown("### Órgãos Julgadores (Varas do Trabalho)")
 
         if 'orgaoJulgador_nome' in df_f.columns:
             col_a, col_b = st.columns([3, 2])
@@ -982,7 +982,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         st.markdown("---")
 
         # ── Seção 2: Resumo por Sistema (informação secundária) ──
-        st.markdown("### 💻 Sistema Processual")
+        st.markdown("### Sistema Processual")
 
         col_s1, col_s2 = st.columns(2)
         with col_s1:
@@ -1030,7 +1030,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         # Valor da causa (se disponível)
         if 'valor_causa' in df_f.columns and df_f['valor_causa'].notna().sum() > 0:
             st.markdown("---")
-            st.markdown("**💰 Distribuição de Valor da Causa (R$)**")
+            st.markdown("** Distribuição de Valor da Causa (R$)**")
             col_v1, col_v2 = st.columns(2)
             with col_v1:
                 df_val = df_f['valor_causa'].dropna()
@@ -1065,7 +1065,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
 
     # ═══════════ ABA 6: EXPLORAR DADOS ═══════════
     with aba6:
-        st.markdown("**🔎 Pesquisa e Exportação**")
+        st.markdown("** Pesquisa e Exportação**")
         col_s1, col_s2, col_s3 = st.columns(3)
         with col_s1:
             filtro_comarca_exp = st.selectbox("Comarca", options=["Todas"] + comarcas_disp, key="ulisses_exp_comarca")
@@ -1096,7 +1096,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         from datetime import datetime
         csv = df_exp_sorted.to_csv(index=False, encoding='utf-8-sig').encode('utf-8-sig')
         st.download_button(
-            label="⬇️  Baixar CSV (filtrado)",
+            label=" Baixar CSV (filtrado)",
             data=csv,
             file_name=f"processos_trt21_ulisses_filtrado_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
             mime='text/csv',
@@ -1111,7 +1111,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         st.markdown("""
         <div style='background: linear-gradient(135deg, rgba(130,80,223,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #8250DF;'>
             <span style='font-size: 0.78rem; color: #57606A;'>
-                📋 Lista completa de todos os assuntos encontrados nos processos. Cada processo pode conter múltiplos
+                Lista completa de todos os assuntos encontrados nos processos. Cada processo pode conter múltiplos
                 assuntos separados por <code>|</code> na coluna <code>assuntos_str</code>. A tabela abaixo explode
                 todos os assuntos individuais com seus respectivos códigos e frequências.
             </span>
@@ -1159,7 +1159,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 st.markdown("---")
 
                 # ── Filtro de busca ──
-                busca = st.text_input("🔎 Buscar assunto", placeholder="Digite para filtrar...", key="ulisses_busca_assunto")
+                busca = st.text_input(" Buscar assunto", placeholder="Digite para filtrar...", key="ulisses_busca_assunto")
 
                 # ── Tabela consolidada ──
                 df_ass_tab = (
@@ -1187,7 +1187,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 from datetime import datetime as _dt
                 csv_ass = df_ass_tab.to_csv(index=True, encoding='utf-8-sig').encode('utf-8-sig')
                 st.download_button(
-                    label="⬇️  Baixar lista de assuntos (CSV)",
+                    label=" Baixar lista de assuntos (CSV)",
                     data=csv_ass,
                     file_name=f"assuntos_trt21_ulisses_{_dt.now().strftime('%Y%m%d_%H%M')}.csv",
                     mime='text/csv',
@@ -1204,7 +1204,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         st.markdown("""
         <div style='background: linear-gradient(135deg, rgba(9,105,218,0.06), rgba(130,80,223,0.04)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #0969DA;'>
             <span style='font-size: 0.78rem; color: #57606A;'>
-                📊 Análise da evolução temporal dos assuntos processuais agrupados por <b>semestre</b>.
+                Análise da evolução temporal dos assuntos processuais agrupados por <b>semestre</b>.
                 Selecione os assuntos de interesse para visualizar tendências, picos e vales ao longo do período 2020–2024.
                 Os dados são extraídos da coluna <code>assuntos_str</code>, explodindo múltiplos assuntos por processo.
             </span>
@@ -1257,7 +1257,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 # ── Filtro de assuntos ──
                 top_assuntos_list = freq_total['Assunto'].head(30).tolist()
                 assuntos_evo_sel = st.multiselect(
-                    "📂 Selecione os assuntos para análise",
+                    " Selecione os assuntos para análise",
                     options=freq_total['Assunto'].tolist(),
                     default=top_assuntos_list[:5],
                     key="ulisses_evo_assuntos",
@@ -1268,7 +1268,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     st.info("Selecione ao menos um assunto acima para visualizar a análise.")
                 else:
                     # ── Tabela de frequências dos selecionados ──
-                    with st.expander("📋 Tabela de Frequências", expanded=False):
+                    with st.expander(" Tabela de Frequências", expanded=False):
                         df_freq_sel = freq_total[freq_total['Assunto'].isin(assuntos_evo_sel)].reset_index(drop=True)
                         df_freq_sel.index += 1
                         st.dataframe(df_freq_sel, use_container_width=True, hide_index=False)
@@ -1306,7 +1306,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                         return picos, vales
 
                     # ═══ GRÁFICO 1: Evolução Semestral (linhas) ═══
-                    st.markdown("### 📈 Evolução Semestral por Assunto")
+                    st.markdown("### Evolução Semestral por Assunto")
                     fig_evo = go.Figure()
                     for i, assunto in enumerate(assuntos_evo_sel):
                         d = df_sem[df_sem['assunto'] == assunto].sort_values('semestre')
@@ -1352,7 +1352,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     st.plotly_chart(fig_evo, use_container_width=True)
 
                     # ═══ GRÁFICO 2: Heatmap Semestral ═══
-                    st.markdown("### 🔥 Heatmap — Intensidade por Semestre")
+                    st.markdown("### Heatmap — Intensidade por Semestre")
                     df_heat_pivot = df_sem.pivot(index='assunto', columns='semestre', values='qtd').fillna(0)
                     # Ordenar por total
                     df_heat_pivot['_total'] = df_heat_pivot.sum(axis=1)
@@ -1378,7 +1378,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     st.plotly_chart(fig_heat, use_container_width=True)
 
                     # ═══ GRÁFICO 3: Variação % Semestral ═══
-                    st.markdown("### 📉 Variação Percentual entre Semestres")
+                    st.markdown("### Variação Percentual entre Semestres")
                     var_rows = []
                     for assunto in assuntos_evo_sel:
                         d = df_sem[df_sem['assunto'] == assunto].sort_values('semestre')
@@ -1410,7 +1410,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                         st.plotly_chart(fig_var, use_container_width=True)
 
                     # ═══ RESUMO ESTATÍSTICO ═══
-                    st.markdown("### 📊 Resumo Estatístico")
+                    st.markdown("### Resumo Estatístico")
                     resumo_rows = []
                     for assunto in assuntos_evo_sel:
                         d = df_sem[df_sem['assunto'] == assunto].sort_values('semestre')
@@ -1437,10 +1437,10 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
 
                     # ═══ EXPORTAR PDF ═══
                     st.markdown("---")
-                    st.markdown("### 📄 Exportar Relatório PDF")
+                    st.markdown("### Exportar Relatório PDF")
                     st.markdown("Gere um relatório PDF completo com todos os gráficos e análises dos assuntos selecionados.")
 
-                    if st.button("📄 Gerar Relatório PDF", key="ulisses_gerar_pdf", use_container_width=True, type="primary"):
+                    if st.button(" Gerar Relatório PDF", key="ulisses_gerar_pdf", use_container_width=True, type="primary"):
                         try:
                             from gerar_relatorio_assuntos import gerar_relatorio_pdf
                             import tempfile, os
@@ -1450,10 +1450,10 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                                 gerar_relatorio_pdf(assuntos_evo_sel, df_f, pdf_path)
                                 with open(pdf_path, 'rb') as f:
                                     pdf_bytes = f.read()
-                            st.success(f"✅ Relatório gerado com sucesso! ({len(pdf_bytes)//1024} KB)")
+                            st.success(f" Relatório gerado com sucesso! ({len(pdf_bytes)//1024} KB)")
                             from datetime import datetime as _dt2
                             st.download_button(
-                                label="⬇️  Baixar Relatório PDF",
+                                label=" Baixar Relatório PDF",
                                 data=pdf_bytes,
                                 file_name=f"relatorio_assuntos_trt21_{_dt2.now().strftime('%Y%m%d_%H%M')}.pdf",
                                 mime='application/pdf',

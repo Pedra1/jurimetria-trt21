@@ -42,7 +42,7 @@ _COR_ROTULO = "#57606A"
 _COR_GRADE = "#D0D7DE"
 _FONTE = "DejaVu Sans"
 _DPI = 150
-_TAM_FIGURA = (11.69, 8.27)  # A4 paisagem
+_TAM_FIGURA = (11.69, 8.27) # A4 paisagem
 
 # Cores do heatmap (claro → escuro em fundo branco)
 _HEATMAP_CLARO = "#F0F4F8"
@@ -297,7 +297,7 @@ def _pagina_tabela_frequencia(pdf, pivot, total_ocorrencias):
             celula.set_facecolor(cores_celulas[i][j])
             celula.set_text_props(color=_COR_ROTULO, fontfamily=_FONTE)
             celula.set_edgecolor(_COR_GRADE)
-            if j == 0:  # Coluna Assunto alinhada à esquerda
+            if j == 0: # Coluna Assunto alinhada à esquerda
                 celula.set_text_props(
                     color=_COR_TITULO, fontfamily=_FONTE, ha="left"
                 )
@@ -517,8 +517,8 @@ def _pagina_assunto_individual(pdf, assunto, semestres, valores, cor):
     tendencia = "Crescente" if len(valores) >= 2 and valores[-1] >= valores[0] else "Decrescente"
 
     resumo = (
-        f"Total: {total:,}  |  Média: {media:,.1f}  |  "
-        f"Máx: {maximo:,}  |  Mín: {minimo:,}  |  "
+        f"Total: {total:,} | Média: {media:,.1f} | "
+        f"Máx: {maximo:,} | Mín: {minimo:,} | "
         f"Tendência: {tendencia}"
     ).replace(",", ".")
 
@@ -610,7 +610,7 @@ def gerar_relatorio_pdf(
             cor = _cor_assunto(i)
             _pagina_assunto_individual(pdf, assunto, semestres, valores, cor)
 
-    print(f"✅ Relatório salvo com sucesso em: {output_path}")
+    print(f" Relatório salvo com sucesso em: {output_path}")
     return output_path
 
 
@@ -628,14 +628,14 @@ if __name__ == "__main__":
 
     if not arquivos:
         print(
-            f"⚠️  Nenhum arquivo encontrado com o padrão '{padrao_glob}'.\n"
+            f" Nenhum arquivo encontrado com o padrão '{padrao_glob}'.\n"
             "Verifique se os arquivos XLSX estão no mesmo diretório do script."
         )
         raise SystemExit(1)
 
-    print(f"📂 {len(arquivos)} arquivo(s) encontrado(s):")
+    print(f" {len(arquivos)} arquivo(s) encontrado(s):")
     for arq in arquivos:
-        print(f"   • {os.path.basename(arq)}")
+        print(f" • {os.path.basename(arq)}")
 
     # Concatenar todos os DataFrames
     lista_dfs = []
@@ -643,16 +643,16 @@ if __name__ == "__main__":
         try:
             df_temp = pd.read_excel(arq)
             lista_dfs.append(df_temp)
-            print(f"   ✔ {os.path.basename(arq)}: {len(df_temp):,} linhas".replace(",", "."))
+            print(f" {os.path.basename(arq)}: {len(df_temp):,} linhas".replace(",", "."))
         except Exception as e:
-            print(f"   ✖ Erro ao ler {os.path.basename(arq)}: {e}")
+            print(f" Erro ao ler {os.path.basename(arq)}: {e}")
 
     if not lista_dfs:
-        print("❌ Nenhum arquivo pôde ser carregado.")
+        print(" Nenhum arquivo pôde ser carregado.")
         raise SystemExit(1)
 
     df_completo = pd.concat(lista_dfs, ignore_index=True)
-    print(f"\n📊 Total de registros carregados: {len(df_completo):,}".replace(",", "."))
+    print(f"\n Total de registros carregados: {len(df_completo):,}".replace(",", "."))
 
     # Converter data
     if "dataAjuizamento" in df_completo.columns:
@@ -669,12 +669,12 @@ if __name__ == "__main__":
     contagem_assuntos = pd.Series(todos_assuntos).value_counts()
     top_10 = contagem_assuntos.head(10).index.tolist()
 
-    print(f"\n🏆 Top 10 assuntos selecionados para o relatório:")
+    print(f"\n Top 10 assuntos selecionados para o relatório:")
     for i, a in enumerate(top_10, 1):
         freq = contagem_assuntos[a]
-        print(f"   {i:>2}. {a} ({freq:,} ocorrências)".replace(",", "."))
+        print(f" {i:>2}. {a} ({freq:,} ocorrências)".replace(",", "."))
 
     # Gerar PDF
     caminho_pdf = os.path.join(diretorio_script, "relatorio_assuntos_trt21.pdf")
-    print(f"\n⏳ Gerando relatório PDF...")
+    print(f"\n Gerando relatório PDF...")
     gerar_relatorio_pdf(top_10, df_completo, caminho_pdf)
