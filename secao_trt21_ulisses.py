@@ -9,6 +9,10 @@ import numpy as np
 import json
 import urllib.request
 from config import *
+from dados_ibge_rn import (
+    carregar_dados_ibge, obter_vara_municipio, obter_idhm,
+    _VARA_MUNICIPIOS, _MUNICIPIO_PARA_VARA, _CORES_VARA, _normalizar,
+)
 
 # ─────────────────────────────────────────────
 # DICIONÁRIO GEOGRÁFICO — COMARCAS TRT21/RN
@@ -348,10 +352,20 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 fig_trim.update_xaxes(tickangle=45)
                 st.plotly_chart(fig_trim, use_container_width=True)
 
-        # ═══════════ ABA 2: MAPA INTERATIVO ═══════════
+        # ═══════════ ABA 2: MAPA INTERATIVO (POR VARA) ═══════════
     with aba2:
 
-        # ── Dados base: respeita ano e sistema, ignora filtro de comarca ──
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, rgba(9,105,218,0.08), rgba(188,140,255,0.06)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #0969DA;'>
+            <span style='font-size: 0.78rem; color: #57606A;'>
+                Mapa interativo dos <b>167 municipios</b> do Rio Grande do Norte agrupados por <b>Vara Trabalhista</b>.
+                Municipios da mesma vara compartilham a mesma cor. Passe o mouse para ver dados socioeconomicos
+                (populacao, PIB per capita, IDHM) obtidos via <b>API do IBGE</b>.
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # -- Dados base: respeita ano e sistema, ignora filtro de comarca --
         _mask_mapa = pd.Series([True] * len(df_raw), index=df_raw.index)
         if anos_sel:
             _mask_mapa &= df_raw['ano'].isin(anos_sel)
@@ -359,7 +373,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
             _mask_mapa &= df_raw['sistema_nome'].isin(sistemas_sel)
         df_mapa_base = df_raw[_mask_mapa].copy()
 
-        # ── Recorte temporal interno do mapa ──
+        # -- Recorte temporal interno do mapa --
         anos_mapa_disp = ["Todos os anos"] + [str(a) for a in sorted(df_mapa_base['ano'].dropna().unique())]
         ano_mapa = st.selectbox("Recorte temporal", anos_mapa_disp, key="ulisses_mapa_ano")
 
@@ -368,282 +382,298 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         else:
             df_fonte = df_mapa_base
 
-        # ── Georreferenciar comarcas ──
+        # -- Processos por comarca (para enrichment) --
         df_cnt = df_fonte['municipio_comarca'].value_counts().reset_index()
         df_cnt.columns = ['comarca', 'processos']
         total_proc = df_cnt['processos'].sum()
+        proc_por_comarca = dict(zip(df_cnt['comarca'], df_cnt['processos']))
 
-        rows = []
-        for _, row in df_cnt.iterrows():
-            geo = _match_comarca(row['comarca'])
-            if geo:
-                top_ass = (
-                    df_fonte[df_fonte['municipio_comarca'] == row['comarca']]
-                    ['assunto_primario_nome'].value_counts().index[0]
-                    if 'assunto_primario_nome' in df_fonte.columns
-                    and df_fonte[df_fonte['municipio_comarca'] == row['comarca']]['assunto_primario_nome'].notna().any()
-                    else "—"
-                )
-                rows.append({
-                    "comarca": row['comarca'],
-                    "nome": geo["nome_geo"],
-                    "processos": int(row['processos']),
-                    "pct": round(row['processos'] / total_proc * 100, 1),
-                    "lat": geo["lat"],
-                    "lon": geo["lon"],
-                    "varas": geo["varas"],
-                    "regiao": geo["regiao"],
-                    "top_assunto": str(top_ass)[:45],
+        # -- Assunto principal por comarca --
+        assunto_por_comarca = {}
+        if 'assunto_primario_nome' in df_fonte.columns:
+            for comarca_name in df_cnt['comarca']:
+                sub = df_fonte[df_fonte['municipio_comarca'] == comarca_name]['assunto_primario_nome'].dropna()
+                if not sub.empty:
+                    assunto_por_comarca[comarca_name] = str(sub.value_counts().index[0])[:45]
+
+        # -- Processos por vara (soma de todas as comarcas da vara) --
+        proc_por_vara = {}
+        for vara, muns_vara in _VARA_MUNICIPIOS.items():
+            total = 0
+            for comarca_name, n_proc in proc_por_comarca.items():
+                cn = _normalizar(comarca_name)
+                for mv in muns_vara:
+                    if _normalizar(mv) == cn or _normalizar(vara) == cn:
+                        total += n_proc
+                        break
+            proc_por_vara[vara] = total
+
+        # -- Carregar dados socioeconomicos do IBGE --
+        dados_ibge = carregar_dados_ibge()
+
+        # -- KPIs --
+        pop_total = sum(d['populacao'] for d in dados_ibge.values())
+        vara_lider = max(proc_por_vara, key=proc_por_vara.get) if proc_por_vara else "-"
+        m1, m2, m3, m4 = st.columns(4)
+        m1.metric("Varas Trabalhistas", len(_VARA_MUNICIPIOS))
+        m2.metric("Municipios Mapeados", sum(len(v) for v in _VARA_MUNICIPIOS.values()))
+        m3.metric("Populacao Total (RN)", f"{pop_total:,}".replace(",", "."))
+        m4.metric("Vara c/ Mais Processos", vara_lider)
+
+        st.markdown("---")
+
+        # -- Carregar GeoJSON --
+        try:
+            geojson_rn = _carregar_geojson_rn()
+        except Exception:
+            geojson_rn = None
+            st.error("Nao foi possivel carregar o GeoJSON dos municipios do RN.")
+
+        if geojson_rn is not None:
+            # Construir dataframe por municipio do GeoJSON
+            mun_rows = []
+            for feat in geojson_rn['features']:
+                mun_name = feat['properties'].get('name', '')
+                mun_id = feat['properties'].get('id', '')
+
+                vara = obter_vara_municipio(mun_name)
+                idhm = obter_idhm(mun_name)
+
+                # Dados IBGE
+                ibge = dados_ibge.get(mun_name, {})
+                if not ibge:
+                    # Tentar match normalizado
+                    mn = _normalizar(mun_name)
+                    for k, v in dados_ibge.items():
+                        if _normalizar(k) == mn:
+                            ibge = v
+                            break
+
+                populacao = ibge.get('populacao', 0)
+                pib_pc = ibge.get('pib_pc', 0.0)
+                area = ibge.get('area', 0.0)
+
+                # Processos da vara
+                n_proc_vara = proc_por_vara.get(vara, 0) if vara else 0
+
+                # Assunto principal da comarca/vara
+                top_ass = '—'
+                if vara:
+                    # Tenta match da comarca pelo nome do municipio
+                    for com_key, ass in assunto_por_comarca.items():
+                        if _normalizar(com_key) == _normalizar(vara) or _normalizar(com_key) == _normalizar(mun_name):
+                            top_ass = ass
+                            break
+
+                # Densidade demografica
+                dens = round(populacao / area, 1) if area > 0 else 0.0
+
+                mun_rows.append({
+                    'mun_id': mun_id,
+                    'municipio': mun_name,
+                    'vara': vara or 'Sem vara',
+                    'vara_idx': list(_CORES_VARA.keys()).index(vara) if vara and vara in _CORES_VARA else -1,
+                    'populacao': populacao,
+                    'pop_fmt': f"{populacao:,}".replace(",", "."),
+                    'pib_pc': pib_pc,
+                    'pib_fmt': f"R$ {pib_pc:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."),
+                    'idhm': idhm or 0,
+                    'idhm_fmt': f"{idhm:.3f}" if idhm else '—',
+                    'area': area,
+                    'area_fmt': f"{area:,.1f} km²".replace(",", "X").replace(".", ",").replace("X", "."),
+                    'densidade': dens,
+                    'dens_fmt': f"{dens:,.1f} hab/km²".replace(",", "X").replace(".", ",").replace("X", "."),
+                    'processos_vara': n_proc_vara,
+                    'proc_fmt': f"{n_proc_vara:,}".replace(",", "."),
+                    'top_assunto': top_ass,
+                    'cor': _CORES_VARA.get(vara, '#D0D7DE'),
                 })
 
-        df_geo = pd.DataFrame(rows)
+            df_mun = pd.DataFrame(mun_rows)
 
-        if df_geo.empty:
-            st.warning("Nenhuma comarca pôde ser georreferenciada com os filtros atuais.")
-        else:
-            # ── KPIs ──
-            m1, m2, m3, m4 = st.columns(4)
-            m1.metric("Comarcas no mapa", len(df_geo))
-            m2.metric("Comarca líder", df_geo.loc[df_geo['processos'].idxmax(), 'nome'])
-            m3.metric("Processos na líder", f"{df_geo['processos'].max():,}".replace(",","."))
-            m4.metric("Regiões cobertas", df_geo['regiao'].nunique())
+            # -- Mapa choropleth discreto por vara --
+            fig_mapa = go.Figure()
 
-            st.markdown("---")
+            for vara_nome, cor in _CORES_VARA.items():
+                df_vara = df_mun[df_mun['vara'] == vara_nome]
+                if df_vara.empty:
+                    continue
 
-            # ── Carregar GeoJSON e construir dados por município ──
-            try:
-                geojson_rn = _carregar_geojson_rn()
-            except Exception:
-                geojson_rn = None
-                st.error("Não foi possível carregar o GeoJSON dos municípios do RN.")
-
-            if geojson_rn is not None:
-                # Criar lookup de comarca por nome normalizado
-                _comarca_lookup_norm = {}
-                for mun_name, com_name in _MUNICIPIO_PARA_COMARCA.items():
-                    _comarca_lookup_norm[_normalizar(mun_name)] = com_name
-
-                # Criar lookup de info da comarca
-                comarca_info = {}
-                for _, r in df_geo.iterrows():
-                    comarca_info[r['nome']] = r
-                    comarca_info[r['comarca']] = r
-
-                # Para cada feature do GeoJSON, associar à comarca
-                mun_rows = []
-                for feat in geojson_rn['features']:
-                    mun_name = feat['properties'].get('name', '')
-                    mun_id = feat['properties'].get('id', '')
-                    mun_norm = _normalizar(mun_name)
-
-                    # Encontrar comarca deste município
-                    comarca_nome = _comarca_lookup_norm.get(mun_norm)
-                    if comarca_nome is None:
-                        # Tentar correspondência parcial no dicionário
-                        for k_norm, v_com in _comarca_lookup_norm.items():
-                            if k_norm in mun_norm or mun_norm in k_norm:
-                                comarca_nome = v_com
-                                break
-
-                    # Buscar dados da comarca
-                    info = None
-                    if comarca_nome:
-                        # Tenta match exato e depois normalizado
-                        info = comarca_info.get(comarca_nome)
-                        if info is None:
-                            cn = _normalizar(comarca_nome)
-                            for k, v in comarca_info.items():
-                                if _normalizar(k) == cn:
-                                    info = v
-                                    break
-
-                    if info is not None:
-                        mun_rows.append({
-                            'mun_id': mun_id,
-                            'municipio': mun_name,
-                            'comarca': info['nome'],
-                            'processos': info['processos'],
-                            'pct': info['pct'],
-                            'varas': info['varas'],
-                            'regiao': info['regiao'],
-                            'top_assunto': info['top_assunto'],
-                        })
-                    else:
-                        mun_rows.append({
-                            'mun_id': mun_id,
-                            'municipio': mun_name,
-                            'comarca': '—',
-                            'processos': 0,
-                            'pct': 0.0,
-                            'varas': 0,
-                            'regiao': '—',
-                            'top_assunto': '—',
-                        })
-
-                df_mun = pd.DataFrame(mun_rows)
-
-                # ── Mapa choropleth flat — RN com contexto dos estados vizinhos ──
-                fig_mapa = px.choropleth_mapbox(
-                    df_mun,
+                fig_mapa.add_trace(go.Choroplethmapbox(
                     geojson=geojson_rn,
-                    locations='mun_id',
+                    locations=df_vara['mun_id'],
                     featureidkey='properties.id',
-                    color='processos',
-                    color_continuous_scale=[
-                        [0.0, "#F0F4F8"],
-                        [0.15, "#BDDDF5"],
-                        [0.35, "#2958B3"],
-                        [0.55, "#4BA0DC"],
-                        [0.75, "#0969DA"],
-                        [1.0, "#A5D3FF"],
-                    ],
-                    mapbox_style="carto-positron",
-                    zoom=7.0,
-                    center={"lat": -5.80, "lon": -36.40},
-                    opacity=0.92,
-                    custom_data=['municipio', 'comarca', 'processos', 'pct', 'varas', 'regiao', 'top_assunto'],
-                )
-
-                fig_mapa.update_traces(
-                    marker_line_width=0.8,
-                    marker_line_color="#30363D",
+                    z=[1] * len(df_vara),  # dummy uniform value
+                    colorscale=[[0, cor], [1, cor]],
+                    showscale=False,
+                    name=vara_nome,
+                    marker=dict(opacity=0.85, line=dict(width=0.8, color='#FFFFFF')),
+                    customdata=df_vara[[
+                        'municipio', 'vara', 'pop_fmt', 'pib_fmt',
+                        'idhm_fmt', 'area_fmt', 'dens_fmt',
+                        'proc_fmt', 'top_assunto',
+                    ]].values,
                     hovertemplate=(
                         "<b>%{customdata[0]}</b><br>"
-                        "─────────────────<br>"
-                        "Comarca: <b>%{customdata[1]}</b><br>"
-                        "Processos na comarca: <b>%{customdata[2]:,}</b> (%{customdata[3]}%)<br>"
-                        "Varas do Trabalho: %{customdata[4]}<br>"
-                        "Região: %{customdata[5]}<br>"
-                        "Principal assunto:<br>%{customdata[6]}"
+                        "━━━━━━━━━━━━━━━━━━━━<br>"
+                        "Vara: <b>%{customdata[1]}</b><br>"
+                        "━━━━━━━━━━━━━━━━━━━━<br>"
+                        "Populacao: <b>%{customdata[2]}</b><br>"
+                        "PIB per capita: <b>%{customdata[3]}</b><br>"
+                        "IDHM (2010): <b>%{customdata[4]}</b><br>"
+                        "Area: %{customdata[5]}<br>"
+                        "Densidade: %{customdata[6]}<br>"
+                        "━━━━━━━━━━━━━━━━━━━━<br>"
+                        "Processos na vara: <b>%{customdata[7]}</b><br>"
+                        "Assunto principal: %{customdata[8]}"
                         "<extra></extra>"
                     ),
-                )
-
-                # ── Adicionar estados vizinhos como camada de contexto sutil ──
-                try:
-                    estados_vizinhos = _carregar_geojson_vizinhos()
-                except Exception:
-                    estados_vizinhos = {}
-
-                mapbox_layers = []
-                for nome_estado, geojson_estado in estados_vizinhos.items():
-                    # Preenchimento sutil para diferenciar do fundo
-                    mapbox_layers.append(dict(
-                        sourcetype="geojson",
-                        source=geojson_estado,
-                        type="fill",
-                        color="rgba(240, 244, 248, 0.6)",
-                        below="traces",
-                    ))
-                    # Contorno estadual externo
-                    mapbox_layers.append(dict(
-                        sourcetype="geojson",
-                        source=geojson_estado,
-                        type="line",
-                        color="rgba(189, 221, 245, 0.5)",
-                        line=dict(width=0.6),
-                        below="traces",
-                    ))
-
-                fig_mapa.update_layout(
-                    paper_bgcolor="rgba(255,255,255,0)",
-                    plot_bgcolor="rgba(255,255,255,0)",
-                    mapbox=dict(
-                        layers=mapbox_layers,
-                    ),
-                    margin=dict(l=0, r=0, t=0, b=0),
-                    height=650,
-                    showlegend=False,
-                    coloraxis_colorbar=dict(
-                        title=dict(text="Processos", font=dict(size=11, color="#57606A")),
-                        tickfont=dict(size=10, color="#57606A"),
-                        thickness=10,
-                        len=0.5,
-                        bgcolor="rgba(255,255,255,0)",
-                        borderwidth=0,
-                        x=1.0,
-                    ),
-                    hoverlabel=dict(
-                        bgcolor="#F6F8FA",
-                        bordercolor="#0969DA",
-                        font=dict(family="Sora, sans-serif", size=12, color="#1F2328"),
-                        align="left",
-                    ),
-                )
-
-                st.plotly_chart(fig_mapa, use_container_width=True)
-
-                st.caption(" Mapa do Rio Grande do Norte · Municípios coloridos pelo volume de processos da comarca · Passe o mouse para ver detalhes do tribunal.")
-
-            st.markdown("---")
-
-            # ── Ranking + barras por região ──
-            col_tab, col_bar = st.columns([1, 2])
-
-            with col_tab:
-                st.markdown("**Ranking de Comarcas**")
-                df_rank = (
-                    df_geo[['nome','regiao','processos','pct','varas']]
-                    .sort_values('processos', ascending=False)
-                    .reset_index(drop=True)
-                )
-                df_rank.index += 1
-                df_rank.columns = ['Comarca','Região','Processos','%','Varas']
-                df_rank['Processos'] = df_rank['Processos'].apply(lambda v: f"{v:,}".replace(",","."))
-                df_rank['%'] = df_rank['%'].apply(lambda v: f"{v}%")
-                st.dataframe(df_rank, use_container_width=True, height=360)
-
-            with col_bar:
-                df_reg = df_geo.groupby('regiao')['processos'].sum().reset_index().sort_values('processos')
-                fig_reg = go.Figure(go.Bar(
-                    x=df_reg['processos'],
-                    y=df_reg['regiao'],
-                    orientation='h',
-                    marker=dict(
-                        color=df_reg['processos'],
-                        colorscale=[[0,'#BDDDF5'],[1,'#0550AE']],
-                        showscale=False,
-                    ),
-                    text=df_reg['processos'].apply(lambda v: f"{v:,}".replace(",",".")),
-                    textposition='outside',
-                    textfont=dict(size=10, color="#1F2328"),
-                    hovertemplate="<b>%{y}</b><br>%{x:,} processos<extra></extra>",
                 ))
-                fig_reg.update_layout(**layout_plotly("Processos por Região"))
-                fig_reg.update_layout(height=360)
-                fig_reg.update_yaxes(categoryorder='total ascending')
-                st.plotly_chart(fig_reg, use_container_width=True)
 
-            # ── Evolução temporal das comarcas mapeadas ──
-            st.markdown("---")
-            comarcas_mapeadas = df_geo['comarca'].tolist()
-            df_evo = (
-                df_mapa_base[df_mapa_base['municipio_comarca'].isin(comarcas_mapeadas)]
-                .groupby(['ano','municipio_comarca']).size()
-                .reset_index(name='qtd')
-            )
-            df_evo['label'] = df_evo['municipio_comarca'].apply(
-                lambda c: _match_comarca(c)['nome_geo'] if _match_comarca(c) else c
-            )
-            top8 = df_evo.groupby('label')['qtd'].sum().nlargest(8).index.tolist()
-            df_evo_top = df_evo[df_evo['label'].isin(top8)]
+            # Municipios sem vara (se houver)
+            df_sem = df_mun[df_mun['vara'] == 'Sem vara']
+            if not df_sem.empty:
+                fig_mapa.add_trace(go.Choroplethmapbox(
+                    geojson=geojson_rn,
+                    locations=df_sem['mun_id'],
+                    featureidkey='properties.id',
+                    z=[1] * len(df_sem),
+                    colorscale=[[0, '#D0D7DE'], [1, '#D0D7DE']],
+                    showscale=False,
+                    name='Sem vara definida',
+                    marker=dict(opacity=0.5, line=dict(width=0.5, color='#E1E4E8')),
+                    customdata=df_sem[[
+                        'municipio', 'vara', 'pop_fmt', 'pib_fmt',
+                        'idhm_fmt', 'area_fmt', 'dens_fmt',
+                        'proc_fmt', 'top_assunto',
+                    ]].values,
+                    hovertemplate="<b>%{customdata[0]}</b><br>Sem vara definida<extra></extra>",
+                ))
 
-            cores_evo = [COR_PRIMARIA, COR_ROXO, COR_CIANO, COR_LARANJA,
-                         COR_SECUNDARIA, COR_ALERTA, COR_PERIGO, "#E879F9"]
-            fig_evo = go.Figure()
-            for i, c in enumerate(top8):
-                d = df_evo_top[df_evo_top['label'] == c]
-                fig_evo.add_trace(go.Scatter(
+            # -- Estados vizinhos --
+            try:
+                estados_vizinhos = _carregar_geojson_vizinhos()
+            except Exception:
+                estados_vizinhos = {}
+
+            mapbox_layers = []
+            for nome_estado, geojson_estado in estados_vizinhos.items():
+                mapbox_layers.append(dict(
+                    sourcetype="geojson", source=geojson_estado,
+                    type="fill", color="rgba(240, 244, 248, 0.6)", below="traces",
+                ))
+                mapbox_layers.append(dict(
+                    sourcetype="geojson", source=geojson_estado,
+                    type="line", color="rgba(189, 221, 245, 0.5)",
+                    line=dict(width=0.6), below="traces",
+                ))
+
+            fig_mapa.update_layout(
+                paper_bgcolor="rgba(255,255,255,0)",
+                plot_bgcolor="rgba(255,255,255,0)",
+                mapbox=dict(
+                    style="carto-positron",
+                    zoom=7.0,
+                    center={"lat": -5.80, "lon": -36.40},
+                    layers=mapbox_layers,
+                ),
+                margin=dict(l=0, r=0, t=0, b=0),
+                height=680,
+                showlegend=True,
+                legend=dict(
+                    title=dict(text="Varas Trabalhistas", font=dict(size=12, color="#1F2328")),
+                    bgcolor="rgba(255,255,255,0.85)",
+                    bordercolor="#D0D7DE",
+                    borderwidth=1,
+                    font=dict(size=11, color="#1F2328"),
+                    x=0.01, y=0.99,
+                    xanchor='left', yanchor='top',
+                ),
+                hoverlabel=dict(
+                    bgcolor="#F6F8FA",
+                    bordercolor="#0969DA",
+                    font=dict(family="Sora, sans-serif", size=12, color="#1F2328"),
+                    align="left",
+                ),
+            )
+
+            st.plotly_chart(fig_mapa, use_container_width=True)
+
+            st.caption("Mapa do Rio Grande do Norte · Municipios coloridos por Vara Trabalhista · Dados socioeconomicos via API IBGE (atualizados).")
+
+        st.markdown("---")
+
+        # -- Ranking de varas + barras --
+        col_tab, col_bar = st.columns([1, 2])
+
+        with col_tab:
+            st.markdown("**Ranking de Varas**")
+            vara_rows = []
+            for vara, muns_v in _VARA_MUNICIPIOS.items():
+                n_proc = proc_por_vara.get(vara, 0)
+                pop_vara = sum(dados_ibge.get(m, {}).get('populacao', 0) for m in muns_v)
+                vara_rows.append({
+                    'Vara': vara,
+                    'Municipios': len(muns_v),
+                    'Processos': n_proc,
+                    '%': round(n_proc / total_proc * 100, 1) if total_proc > 0 else 0,
+                    'Populacao': pop_vara,
+                })
+            df_rank_vara = pd.DataFrame(vara_rows).sort_values('Processos', ascending=False).reset_index(drop=True)
+            df_rank_vara.index += 1
+            df_rank_display = df_rank_vara.copy()
+            df_rank_display['Processos'] = df_rank_display['Processos'].apply(lambda v: f"{v:,}".replace(",", "."))
+            df_rank_display['%'] = df_rank_display['%'].apply(lambda v: f"{v}%")
+            df_rank_display['Populacao'] = df_rank_display['Populacao'].apply(lambda v: f"{v:,}".replace(",", "."))
+            st.dataframe(df_rank_display, use_container_width=True, height=380)
+
+        with col_bar:
+            df_bar_vara = df_rank_vara.sort_values('Processos', ascending=True)
+            cores_bar = [_CORES_VARA.get(v, '#D0D7DE') for v in df_bar_vara['Vara']]
+            fig_bv = go.Figure(go.Bar(
+                x=df_bar_vara['Processos'],
+                y=df_bar_vara['Vara'],
+                orientation='h',
+                marker=dict(color=cores_bar),
+                text=df_bar_vara['Processos'].apply(lambda v: f"{v:,}".replace(",", ".")),
+                textposition='outside',
+                textfont=dict(size=10, color="#1F2328"),
+                hovertemplate="<b>%{y}</b><br>%{x:,} processos<extra></extra>",
+            ))
+            fig_bv.update_layout(**layout_plotly("Processos por Vara Trabalhista"))
+            fig_bv.update_layout(height=380)
+            fig_bv.update_yaxes(categoryorder='total ascending')
+            st.plotly_chart(fig_bv, use_container_width=True)
+
+        # -- Evolucao temporal por vara --
+        st.markdown("---")
+        df_evo_vara = []
+        for vara, muns_v in _VARA_MUNICIPIOS.items():
+            muns_norm = {_normalizar(m) for m in muns_v}
+            muns_norm.add(_normalizar(vara))  # sede da vara
+            mask = df_mapa_base['municipio_comarca'].apply(lambda c: _normalizar(str(c)) in muns_norm)
+            sub = df_mapa_base[mask].groupby('ano').size().reset_index(name='qtd')
+            sub['vara'] = vara
+            df_evo_vara.append(sub)
+
+        if df_evo_vara:
+            df_evo_all = pd.concat(df_evo_vara, ignore_index=True)
+            top_varas = df_evo_all.groupby('vara')['qtd'].sum().nlargest(9).index.tolist()
+            fig_evo_v = go.Figure()
+            for vara_nome in top_varas:
+                d = df_evo_all[df_evo_all['vara'] == vara_nome].sort_values('ano')
+                cor = _CORES_VARA.get(vara_nome, '#999')
+                fig_evo_v.add_trace(go.Scatter(
                     x=d['ano'], y=d['qtd'],
                     mode='lines+markers',
-                    name=c,
-                    line=dict(color=cores_evo[i % len(cores_evo)], width=2),
-                    marker=dict(size=5),
-                    hovertemplate=f"<b>{c}</b><br>%{{x}}: %{{y:,}} processos<extra></extra>",
+                    name=vara_nome,
+                    line=dict(color=cor, width=2.5),
+                    marker=dict(size=6, color=cor),
+                    hovertemplate=f"<b>{vara_nome}</b><br>%{{x}}: %{{y:,}} processos<extra></extra>",
                 ))
-            fig_evo.update_layout(**layout_plotly("Evolução das 8 Maiores Comarcas"))
-            fig_evo.update_xaxes(tickmode='linear', dtick=1)
-            st.plotly_chart(fig_evo, use_container_width=True)
+            fig_evo_v.update_layout(**layout_plotly("Evolucao Temporal por Vara"))
+            fig_evo_v.update_xaxes(tickmode='linear', dtick=1)
+            st.plotly_chart(fig_evo_v, use_container_width=True)
 
 
     # ABA 3 — DISTRIBUIÇÃO GEOGRÁFICA (barras/treemap)
