@@ -13,6 +13,9 @@ from dados_ibge_rn import (
     carregar_dados_ibge, obter_vara_municipio, obter_idhm,
     _VARA_MUNICIPIOS, _MUNICIPIO_PARA_VARA, _CORES_VARA, _normalizar,
 )
+from normalizacao_assuntos import (
+    explodir_assuntos, gerar_estatisticas_consolidacao,
+)
 
 # ─────────────────────────────────────────────
 # DICIONÁRIO GEOGRÁFICO — COMARCAS TRT21/RN
@@ -1141,91 +1144,128 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         st.markdown("""
         <div style='background: linear-gradient(135deg, rgba(130,80,223,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #8250DF;'>
             <span style='font-size: 0.78rem; color: #57606A;'>
-                Lista completa de todos os assuntos encontrados nos processos. Cada processo pode conter múltiplos
-                assuntos separados por <code>|</code> na coluna <code>assuntos_str</code>. A tabela abaixo explode
-                todos os assuntos individuais com seus respectivos códigos e frequências.
+                Lista completa de todos os assuntos encontrados nos processos. Cada processo pode conter multiplos
+                assuntos separados por <code>|</code> na coluna <code>assuntos_str</code>. A aba <b>Dados Originais</b>
+                mostra os dados brutos; a aba <b>Dados Consolidados</b> aplica normalizacao (resolve N/A via
+                codigo, unifica assuntos duplicados e corrige variacoes ortograficas).
             </span>
         </div>
         """, unsafe_allow_html=True)
 
-        # ── Explodir assuntos_str em linhas individuais ──
         if 'assuntos_str' in df_f.columns:
-            # Extrair todos os assuntos individuais
-            assuntos_rows = []
-            for _, row in df_f[['assuntos_str', 'ano', 'municipio_comarca']].iterrows():
-                if not isinstance(row['assuntos_str'], str) or not row['assuntos_str'].strip():
-                    continue
-                for parte in row['assuntos_str'].split('|'):
-                    parte = parte.strip()
-                    if not parte:
-                        continue
-                    m = _re.match(r'(\d+)\s*-\s*(.+)', parte)
-                    if m:
-                        assuntos_rows.append({
-                            'codigo': int(m.group(1)),
-                            'assunto': m.group(2).strip(),
-                            'ano': row['ano'],
-                            'comarca': row['municipio_comarca'],
-                        })
-                    else:
-                        assuntos_rows.append({
-                            'codigo': 0,
-                            'assunto': parte,
-                            'ano': row['ano'],
-                            'comarca': row['municipio_comarca'],
-                        })
+            # Explodir: original e consolidada
+            df_ass_orig = explodir_assuntos(df_f, consolidar=False)
+            df_ass_cons = explodir_assuntos(df_f, consolidar=True)
 
-            df_assuntos_all = pd.DataFrame(assuntos_rows)
-
-            if df_assuntos_all.empty:
+            if df_ass_orig.empty:
                 st.warning("Nenhum assunto encontrado nos dados filtrados.")
             else:
-                # ── KPIs ──
-                ka1, ka2, ka3 = st.columns(3)
-                ka1.metric("Total de Menções", fmt_num(len(df_assuntos_all)))
-                ka2.metric("Assuntos Únicos", fmt_num(df_assuntos_all['assunto'].nunique()))
-                ka3.metric("Códigos Únicos", fmt_num(df_assuntos_all['codigo'].nunique()))
+                # KPIs de impacto da consolidacao
+                stats = gerar_estatisticas_consolidacao(df_ass_orig, df_ass_cons)
+                ka1, ka2, ka3, ka4 = st.columns(4)
+                ka1.metric("Mencoes Totais", fmt_num(stats['mencoes_orig']))
+                ka2.metric("Assuntos Originais", fmt_num(stats['assuntos_orig']))
+                ka3.metric("Assuntos Consolidados", fmt_num(stats['assuntos_cons']),
+                           delta=f"-{stats['reducao_assuntos']}", delta_color="normal")
+                ka4.metric("N/A Resolvidos", fmt_num(stats['na_resolvidos']),
+                           delta=f"{stats['na_cons']} restantes", delta_color="off")
 
                 st.markdown("---")
 
-                # ── Filtro de busca ──
-                busca = st.text_input(" Buscar assunto", placeholder="Digite para filtrar...", key="ulisses_busca_assunto")
+                # Sub-abas: Original vs Consolidada
+                sub7a, sub7b = st.tabs(["Dados Originais", "Dados Consolidados"])
 
-                # ── Tabela consolidada ──
-                df_ass_tab = (
-                    df_assuntos_all
-                    .groupby(['codigo', 'assunto'])
-                    .agg(Ocorrências=('assunto', 'count'), Comarcas=('comarca', 'nunique'), Anos=('ano', 'nunique'))
-                    .reset_index()
-                    .sort_values('Ocorrências', ascending=False)
-                    .reset_index(drop=True)
-                )
-                df_ass_tab.index += 1
-                df_ass_tab['%'] = (df_ass_tab['Ocorrências'] / df_ass_tab['Ocorrências'].sum() * 100).round(2)
-                df_ass_tab = df_ass_tab[['codigo', 'assunto', 'Ocorrências', '%', 'Comarcas', 'Anos']]
-                df_ass_tab.columns = ['Código', 'Assunto', 'Ocorrências', '% do Total', 'Comarcas', 'Anos']
+                # Filtro de busca (compartilhado)
+                busca = st.text_input("Buscar assunto", placeholder="Digite para filtrar...", key="ulisses_busca_assunto")
 
-                # Aplicar busca
-                if busca:
-                    mask_busca = df_ass_tab['Assunto'].str.contains(busca, case=False, na=False)
-                    df_ass_tab = df_ass_tab[mask_busca]
+                # === SUB-ABA: DADOS ORIGINAIS ===
+                with sub7a:
+                    df_tab_orig = (
+                        df_ass_orig
+                        .groupby(['codigo', 'assunto'])
+                        .agg(Freq=('assunto', 'count'), Comarcas=('comarca', 'nunique'), Anos=('ano', 'nunique'))
+                        .reset_index()
+                        .sort_values('Freq', ascending=False)
+                        .reset_index(drop=True)
+                    )
+                    df_tab_orig.index += 1
+                    df_tab_orig['%'] = (df_tab_orig['Freq'] / df_tab_orig['Freq'].sum() * 100).round(2)
+                    df_tab_orig = df_tab_orig[['codigo', 'assunto', 'Freq', '%', 'Comarcas', 'Anos']]
+                    df_tab_orig.columns = ['Codigo', 'Assunto', 'Ocorrencias', '% do Total', 'Comarcas', 'Anos']
 
-                st.markdown(f"**{fmt_num(len(df_ass_tab))} assuntos listados**")
-                st.dataframe(df_ass_tab, use_container_width=True, height=500, hide_index=False)
+                    if busca:
+                        df_tab_orig = df_tab_orig[df_tab_orig['Assunto'].str.contains(busca, case=False, na=False)]
 
-                # ── Download ──
-                from datetime import datetime as _dt
-                csv_ass = df_ass_tab.to_csv(index=True, encoding='utf-8-sig').encode('utf-8-sig')
-                st.download_button(
-                    label=" Baixar lista de assuntos (CSV)",
-                    data=csv_ass,
-                    file_name=f"assuntos_trt21_ulisses_{_dt.now().strftime('%Y%m%d_%H%M')}.csv",
-                    mime='text/csv',
-                    use_container_width=True,
-                    key="ulisses_download_assuntos",
-                )
+                    st.markdown(f"**{fmt_num(len(df_tab_orig))} assuntos** (dados brutos, sem tratamento)")
+                    st.dataframe(df_tab_orig, use_container_width=True, height=500, hide_index=False)
+
+                    from datetime import datetime as _dt
+                    csv_orig = df_tab_orig.to_csv(index=True, encoding='utf-8-sig').encode('utf-8-sig')
+                    st.download_button(
+                        label="Baixar dados originais (CSV)",
+                        data=csv_orig,
+                        file_name=f"assuntos_originais_{_dt.now().strftime('%Y%m%d_%H%M')}.csv",
+                        mime='text/csv',
+                        use_container_width=True,
+                        key="ulisses_download_assuntos_orig",
+                    )
+
+                # === SUB-ABA: DADOS CONSOLIDADOS ===
+                with sub7b:
+                    df_tab_cons = (
+                        df_ass_cons
+                        .groupby('assunto')
+                        .agg(
+                            Freq=('assunto', 'count'),
+                            Codigos=('codigo', lambda x: ', '.join(str(c) for c in sorted(x.unique()))),
+                            N_Codigos=('codigo', 'nunique'),
+                            Comarcas=('comarca', 'nunique'),
+                            Anos=('ano', 'nunique'),
+                        )
+                        .reset_index()
+                        .sort_values('Freq', ascending=False)
+                        .reset_index(drop=True)
+                    )
+                    df_tab_cons.index += 1
+                    df_tab_cons['%'] = (df_tab_cons['Freq'] / df_tab_cons['Freq'].sum() * 100).round(2)
+                    df_tab_cons = df_tab_cons[['assunto', 'Freq', '%', 'N_Codigos', 'Codigos', 'Comarcas', 'Anos']]
+                    df_tab_cons.columns = ['Assunto', 'Ocorrencias', '% do Total', 'Codigos Unificados', 'Codigos', 'Comarcas', 'Anos']
+
+                    if busca:
+                        df_tab_cons = df_tab_cons[df_tab_cons['Assunto'].str.contains(busca, case=False, na=False)]
+
+                    st.markdown(f"**{fmt_num(len(df_tab_cons))} assuntos** (consolidados: N/A resolvidos, similares unificados)")
+
+                    # Highlight: assuntos que foram unificados (mais de 1 codigo)
+                    st.dataframe(df_tab_cons, use_container_width=True, height=500, hide_index=False)
+
+                    # Info sobre consolidacao
+                    with st.expander("Detalhes da consolidacao aplicada"):
+                        st.markdown(f"""
+**Etapas de normalizacao:**
+
+1. **Resolucao de N/A** ({stats['na_resolvidos']} registros corrigidos): quando um codigo
+   aparece com nome real em alguns registros e como "N/A" em outros, o nome real e adotado.
+
+2. **Unificacao de similares** ({stats['reducao_assuntos']} assuntos reduzidos): variacoes
+   ortograficas (ex: "Adicional de Hora Extra" e "Adicional de Horas Extras") sao mapeadas
+   para a forma canonica.
+
+3. **Agrupamento por nome**: assuntos com nomes identicos mas codigos diferentes sao
+   contabilizados juntos (coluna "Codigos Unificados" mostra quantos codigos foram agrupados).
+                        """)
+
+                    csv_cons = df_tab_cons.to_csv(index=True, encoding='utf-8-sig').encode('utf-8-sig')
+                    st.download_button(
+                        label="Baixar dados consolidados (CSV)",
+                        data=csv_cons,
+                        file_name=f"assuntos_consolidados_{_dt.now().strftime('%Y%m%d_%H%M')}.csv",
+                        mime='text/csv',
+                        use_container_width=True,
+                        key="ulisses_download_assuntos_cons",
+                    )
         else:
-            st.warning("Coluna 'assuntos_str' não encontrada nos dados.")
+            st.warning("Coluna 'assuntos_str' nao encontrada nos dados.")
 
     # ═══════════ ABA 8: EVOLUÇÃO DE ASSUNTOS ═══════════
     with aba8:
@@ -1234,37 +1274,18 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         st.markdown("""
         <div style='background: linear-gradient(135deg, rgba(9,105,218,0.06), rgba(130,80,223,0.04)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #0969DA;'>
             <span style='font-size: 0.78rem; color: #57606A;'>
-                Análise da evolução temporal dos assuntos processuais agrupados por <b>semestre</b>.
-                Selecione os assuntos de interesse para visualizar tendências, picos e vales ao longo do período 2020–2024.
-                Os dados são extraídos da coluna <code>assuntos_str</code>, explodindo múltiplos assuntos por processo.
+                Analise da evolucao temporal dos assuntos processuais agrupados por <b>semestre</b>.
+                Selecione os assuntos de interesse para visualizar tendencias, picos e vales ao longo do periodo 2020-2024.
+                Os dados utilizam a base <b>consolidada</b> (assuntos normalizados e N/A resolvidos).
             </span>
         </div>
         """, unsafe_allow_html=True)
 
         if 'assuntos_str' not in df_f.columns or 'dataAjuizamento' not in df_f.columns:
-            st.warning("Colunas necessárias ('assuntos_str', 'dataAjuizamento') não encontradas.")
+            st.warning("Colunas necessarias ('assuntos_str', 'dataAjuizamento') nao encontradas.")
         else:
-            # ── Explodir assuntos e derivar semestre ──
-            @st.cache_data(show_spinner=False)
-            def _explodir_assuntos_semestre(_df):
-                rows = []
-                for _, r in _df[['assuntos_str', 'dataAjuizamento', 'ano', 'municipio_comarca']].iterrows():
-                    if not isinstance(r['assuntos_str'], str) or not r['assuntos_str'].strip():
-                        continue
-                    dt = r['dataAjuizamento']
-                    if pd.isna(dt):
-                        continue
-                    sem = f"{int(r['ano'])}-S{'1' if dt.month <= 6 else '2'}"
-                    for parte in r['assuntos_str'].split('|'):
-                        parte = parte.strip()
-                        if not parte:
-                            continue
-                        m = _re8.match(r'(\d+)\s*-\s*(.+)', parte)
-                        nome = m.group(2).strip() if m else parte
-                        rows.append({'assunto': nome, 'semestre': sem, 'ano': int(r['ano']), 'comarca': r['municipio_comarca']})
-                return pd.DataFrame(rows)
-
-            df_exp_sem = _explodir_assuntos_semestre(df_f)
+            # Usar funcao centralizada com consolidacao
+            df_exp_sem = explodir_assuntos(df_f, consolidar=True)
 
             if df_exp_sem.empty:
                 st.warning("Nenhum assunto encontrado nos dados filtrados.")
