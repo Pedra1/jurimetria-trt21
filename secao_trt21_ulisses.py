@@ -278,7 +278,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
     st.markdown("---")
 
     # ── Abas ──
-    aba1, aba2, aba3, aba4, aba5, aba6, aba7, aba8 = st.tabs([
+    aba1, aba2, aba3, aba4, aba5, aba6, aba7, aba8, aba9, aba10, aba11 = st.tabs([
         " Evolução Temporal",
         " Mapa Interativo",
         " Distribuição Geográfica",
@@ -287,6 +287,9 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         " Explorar Dados",
         " Lista de Assuntos",
         " Evolução de Assuntos",
+        " Saúde do Trabalhador",
+        " Ritos Processuais",
+        " Notas Técnicas",
     ])
 
     # ═══════════ ABA 1: EVOLUÇÃO TEMPORAL ═══════════
@@ -1513,3 +1516,418 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                             )
                         except Exception as e:
                             st.error(f"Erro ao gerar PDF: {e}")
+
+    # ═══════════ ABA 9: SAÚDE DO TRABALHADOR ═══════════
+    with aba9:
+        import re as _re9
+
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, rgba(207,34,46,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #CF222E;'>
+            <span style='font-size: 0.78rem; color: #57606A;'>
+                Analise focada em processos relacionados a <b>saude do trabalhador</b>: acidentes de trabalho,
+                doencas ocupacionais, insalubridade, periculosidade, assedio, danos morais/materiais/esteticos e outros.
+                Os dados sao filtrados automaticamente a partir dos assuntos processuais da base consolidada.
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Codigos e nomes de assuntos relacionados a saude do trabalhador
+        _CODIGOS_SAUDE = {
+            13875, 13877, 13885, 13889, 13782,  # Insalubridade/Periculosidade
+            14016, 14012, 14048,                  # Acidente de trabalho
+            14024, 14014,                          # Doenca ocupacional
+            14010, 14033,                          # Dano moral
+            14009, 14032,                          # Dano material
+            14008,                                 # Dano estetico
+            14011,                                 # Dano moral coletivo
+            14018, 14019,                          # Assedio moral/sexual
+            13390,                                 # Dano moral/material
+            13963,                                 # Morte
+            13853, 13605,                          # Plano de saude
+            12612,                                 # COVID-19
+            12871,                                 # Licenca saude
+        }
+
+        _PATTERN_SAUDE = r'sa[uú]de|doen[cç]a|acidente|insalubr|periculosid|dano|ass[eé]dio|morte|[oó]bito|les[aã]o|incapac|COVID'
+
+        if 'assuntos_str' in df_f.columns:
+            # Explodir assuntos e filtrar os de saude
+            df_saude_exp = explodir_assuntos(df_f, consolidar=True)
+
+            if not df_saude_exp.empty:
+                mask_saude = (
+                    df_saude_exp['codigo'].isin(_CODIGOS_SAUDE) |
+                    df_saude_exp['assunto'].str.contains(_PATTERN_SAUDE, case=False, regex=True, na=False)
+                )
+                df_saude = df_saude_exp[mask_saude].copy()
+                df_todos = df_saude_exp.copy()
+
+                # KPIs
+                total_saude = len(df_saude)
+                total_geral = len(df_todos)
+                pct_saude = round(total_saude / total_geral * 100, 1) if total_geral > 0 else 0
+                assuntos_saude_unicos = df_saude['assunto'].nunique()
+
+                ks1, ks2, ks3, ks4 = st.columns(4)
+                ks1.metric("Mencoes de Saude", fmt_num(total_saude))
+                ks2.metric("% do Total", f"{pct_saude}%")
+                ks3.metric("Assuntos de Saude", fmt_num(assuntos_saude_unicos))
+                ks4.metric("Comarcas Afetadas", fmt_num(df_saude['comarca'].nunique()))
+
+                st.markdown("---")
+
+                # Ranking de assuntos de saude
+                col_rank, col_chart = st.columns([1, 2])
+
+                with col_rank:
+                    st.markdown("**Ranking de Assuntos de Saude**")
+                    df_rank_saude = (
+                        df_saude.groupby('assunto')
+                        .agg(Freq=('assunto', 'count'), Comarcas=('comarca', 'nunique'))
+                        .reset_index()
+                        .sort_values('Freq', ascending=False)
+                        .reset_index(drop=True)
+                    )
+                    df_rank_saude.index += 1
+                    df_rank_saude['%'] = (df_rank_saude['Freq'] / df_rank_saude['Freq'].sum() * 100).round(1)
+                    df_rank_saude.columns = ['Assunto', 'Ocorrencias', 'Comarcas', '%']
+                    st.dataframe(df_rank_saude[['Assunto', 'Ocorrencias', '%', 'Comarcas']],
+                                 use_container_width=True, height=400)
+
+                with col_chart:
+                    df_bar_saude = df_rank_saude.head(12).sort_values('Ocorrencias', ascending=True)
+                    fig_bar_s = go.Figure(go.Bar(
+                        x=df_bar_saude['Ocorrencias'],
+                        y=df_bar_saude['Assunto'].apply(lambda a: a[:35]),
+                        orientation='h',
+                        marker=dict(
+                            color=df_bar_saude['Ocorrencias'],
+                            colorscale=[[0, '#FFCDD2'], [1, '#CF222E']],
+                            showscale=False,
+                        ),
+                        text=df_bar_saude['Ocorrencias'].apply(lambda v: fmt_num(v)),
+                        textposition='outside',
+                        textfont=dict(size=10, color='#1F2328'),
+                        hovertemplate="<b>%{y}</b><br>%{x:,} mencoes<extra></extra>",
+                    ))
+                    fig_bar_s.update_layout(**layout_plotly("Top 12 Assuntos de Saude do Trabalhador"))
+                    fig_bar_s.update_layout(height=400)
+                    st.plotly_chart(fig_bar_s, use_container_width=True)
+
+                st.markdown("---")
+
+                # Evolucao temporal
+                st.markdown("### Evolucao Temporal — Saude do Trabalhador")
+
+                if 'semestre' in df_saude.columns:
+                    df_evo_saude = df_saude.groupby('semestre').size().reset_index(name='qtd')
+                    df_evo_saude = df_evo_saude.sort_values('semestre')
+
+                    fig_evo_s = go.Figure()
+                    fig_evo_s.add_trace(go.Scatter(
+                        x=df_evo_saude['semestre'], y=df_evo_saude['qtd'],
+                        mode='lines+markers+text',
+                        line=dict(color='#CF222E', width=3),
+                        marker=dict(size=8, color='#CF222E'),
+                        text=df_evo_saude['qtd'].apply(lambda v: fmt_num(v)),
+                        textposition='top center',
+                        textfont=dict(size=9, color='#57606A'),
+                        hovertemplate="<b>%{x}</b><br>%{y:,} mencoes<extra></extra>",
+                        fill='tozeroy',
+                        fillcolor='rgba(207,34,46,0.08)',
+                    ))
+                    fig_evo_s.update_layout(**layout_plotly("Volume Semestral de Assuntos de Saude"))
+                    fig_evo_s.update_layout(height=400)
+                    st.plotly_chart(fig_evo_s, use_container_width=True)
+
+                # Top 5 assuntos de saude por semestre
+                st.markdown("### Evolucao dos 5 Principais Assuntos")
+                top5_saude = df_saude['assunto'].value_counts().head(5).index.tolist()
+
+                if 'semestre' in df_saude.columns and top5_saude:
+                    df_top5_sem = (
+                        df_saude[df_saude['assunto'].isin(top5_saude)]
+                        .groupby(['semestre', 'assunto']).size()
+                        .reset_index(name='qtd')
+                    )
+                    cores_saude = ['#CF222E', '#E16F24', '#8250DF', '#0969DA', '#1A7F37']
+                    fig_top5 = go.Figure()
+                    for i, ass in enumerate(top5_saude):
+                        d = df_top5_sem[df_top5_sem['assunto'] == ass].sort_values('semestre')
+                        fig_top5.add_trace(go.Scatter(
+                            x=d['semestre'], y=d['qtd'],
+                            mode='lines+markers',
+                            name=ass[:35],
+                            line=dict(color=cores_saude[i], width=2.5),
+                            marker=dict(size=6),
+                            hovertemplate=f"<b>{ass[:35]}</b><br>%{{x}}: %{{y:,}}<extra></extra>",
+                        ))
+                    fig_top5.update_layout(**layout_plotly("Evolucao Semestral — Top 5 Saude"))
+                    fig_top5.update_layout(height=420)
+                    st.plotly_chart(fig_top5, use_container_width=True)
+
+                # Distribuicao por comarca
+                st.markdown("---")
+                st.markdown("### Distribuicao Geografica — Saude do Trabalhador")
+                col_com_s, col_donut_s = st.columns([2, 1])
+
+                with col_com_s:
+                    df_com_saude = df_saude.groupby('comarca').size().reset_index(name='qtd')
+                    df_com_saude = df_com_saude.sort_values('qtd', ascending=True).tail(10)
+                    fig_com_s = go.Figure(go.Bar(
+                        x=df_com_saude['qtd'],
+                        y=df_com_saude['comarca'],
+                        orientation='h',
+                        marker=dict(color='#CF222E'),
+                        text=df_com_saude['qtd'].apply(lambda v: fmt_num(v)),
+                        textposition='outside',
+                        textfont=dict(size=10),
+                        hovertemplate="<b>%{y}</b><br>%{x:,} mencoes<extra></extra>",
+                    ))
+                    fig_com_s.update_layout(**layout_plotly("Top 10 Comarcas — Saude"))
+                    fig_com_s.update_layout(height=380)
+                    st.plotly_chart(fig_com_s, use_container_width=True)
+
+                with col_donut_s:
+                    # Donut: categorias de saude
+                    categorias = {
+                        'Insalubridade/Periculosidade': ['Adicional de Insalubridade', 'Adicional de Periculosidade',
+                                                          'Outros Agentes Insalubres', 'Cumulação com Adicional de Insalubridade',
+                                                          'Compensação em Atividade Insalubre'],
+                        'Acidente/Doença': ['Acidente de Trabalho', 'Acidente de trabalho', 'Doença Ocupacional', 'COVID-19'],
+                        'Danos': ['Indenização por Dano Moral', 'Indenização por Dano Material',
+                                  'Indenização por Dano Estético', 'Indenização por Dano Moral Coletivo',
+                                  'Dano Moral / Material'],
+                        'Assédio': ['Assédio Moral', 'Assédio Sexual'],
+                        'Outros': ['Morte', 'Plano de Saúde', 'Licença Saúde'],
+                    }
+                    cat_vals = []
+                    for cat, nomes in categorias.items():
+                        total_cat = df_saude[df_saude['assunto'].isin(nomes)]['assunto'].count()
+                        cat_vals.append({'Categoria': cat, 'Total': total_cat})
+                    df_cat = pd.DataFrame(cat_vals)
+                    df_cat = df_cat[df_cat['Total'] > 0].sort_values('Total', ascending=False)
+
+                    fig_donut_s = go.Figure(go.Pie(
+                        labels=df_cat['Categoria'],
+                        values=df_cat['Total'],
+                        hole=0.5,
+                        marker=dict(colors=['#CF222E', '#E16F24', '#8250DF', '#0969DA', '#57606A']),
+                        textinfo='label+percent',
+                        textfont=dict(size=11),
+                        hovertemplate="<b>%{label}</b><br>%{value:,} (%{percent})<extra></extra>",
+                    ))
+                    fig_donut_s.update_layout(**layout_plotly("Categorias de Saude"))
+                    fig_donut_s.update_layout(height=380, showlegend=False)
+                    st.plotly_chart(fig_donut_s, use_container_width=True)
+            else:
+                st.warning("Nenhum dado de assuntos encontrado.")
+        else:
+            st.warning("Coluna 'assuntos_str' nao encontrada.")
+
+    # ═══════════ ABA 10: RITOS PROCESSUAIS ═══════════
+    with aba10:
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, rgba(26,127,55,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #1A7F37;'>
+            <span style='font-size: 0.78rem; color: #57606A;'>
+                Analise da distribuicao processual por <b>rito</b> (Sumarissimo, Ordinario, Sumario).
+                A variavel <code>rito</code> e derivada de <code>classe_nome</code>, preservando a coluna original.
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if 'rito' in df_f.columns:
+            # KPIs
+            rito_counts = df_f['rito'].value_counts()
+            kr1, kr2, kr3 = st.columns(3)
+            kr1.metric("Rito Sumarissimo", fmt_num(rito_counts.get('Rito Sumaríssimo', 0)),
+                       delta=f"{round(rito_counts.get('Rito Sumaríssimo', 0) / len(df_f) * 100, 1)}%",
+                       delta_color="off")
+            kr2.metric("Rito Ordinario", fmt_num(rito_counts.get('Rito Ordinário', 0)),
+                       delta=f"{round(rito_counts.get('Rito Ordinário', 0) / len(df_f) * 100, 1)}%",
+                       delta_color="off")
+            kr3.metric("Rito Sumario", fmt_num(rito_counts.get('Rito Sumário', 0)),
+                       delta=f"{round(rito_counts.get('Rito Sumário', 0) / len(df_f) * 100, 1)}%",
+                       delta_color="off")
+
+            st.markdown("---")
+
+            col_rito1, col_rito2 = st.columns([1, 1])
+
+            with col_rito1:
+                # Donut
+                df_rito = rito_counts.reset_index()
+                df_rito.columns = ['Rito', 'Quantidade']
+                cores_rito = {'Rito Sumaríssimo': '#1A7F37', 'Rito Ordinário': '#0969DA', 'Rito Sumário': '#E16F24', 'Outro': '#D0D7DE'}
+                fig_rito_donut = go.Figure(go.Pie(
+                    labels=df_rito['Rito'],
+                    values=df_rito['Quantidade'],
+                    hole=0.5,
+                    marker=dict(colors=[cores_rito.get(r, '#D0D7DE') for r in df_rito['Rito']]),
+                    textinfo='label+percent',
+                    textfont=dict(size=12),
+                    hovertemplate="<b>%{label}</b><br>%{value:,} processos (%{percent})<extra></extra>",
+                ))
+                fig_rito_donut.update_layout(**layout_plotly("Distribuicao por Rito"))
+                fig_rito_donut.update_layout(height=400, showlegend=False)
+                st.plotly_chart(fig_rito_donut, use_container_width=True)
+
+            with col_rito2:
+                # Evolucao temporal
+                df_rito_evo = df_f.groupby(['ano', 'rito']).size().reset_index(name='qtd')
+                fig_rito_evo = go.Figure()
+                for rito_nome in sorted(df_rito_evo['rito'].unique()):
+                    d = df_rito_evo[df_rito_evo['rito'] == rito_nome].sort_values('ano')
+                    cor = cores_rito.get(rito_nome, '#D0D7DE')
+                    fig_rito_evo.add_trace(go.Scatter(
+                        x=d['ano'], y=d['qtd'],
+                        mode='lines+markers',
+                        name=rito_nome,
+                        line=dict(color=cor, width=2.5),
+                        marker=dict(size=7, color=cor),
+                        hovertemplate=f"<b>{rito_nome}</b><br>%{{x}}: %{{y:,}}<extra></extra>",
+                    ))
+                fig_rito_evo.update_layout(**layout_plotly("Evolucao Anual por Rito"))
+                fig_rito_evo.update_layout(height=400)
+                fig_rito_evo.update_xaxes(tickmode='linear', dtick=1)
+                st.plotly_chart(fig_rito_evo, use_container_width=True)
+
+            st.markdown("---")
+
+            # Rito por comarca
+            st.markdown("### Distribuicao por Comarca")
+            df_rito_com = df_f.groupby(['municipio_comarca', 'rito']).size().reset_index(name='qtd')
+            df_rito_com_total = df_rito_com.groupby('municipio_comarca')['qtd'].sum().nlargest(10).index
+            df_rito_com_top = df_rito_com[df_rito_com['municipio_comarca'].isin(df_rito_com_total)]
+
+            fig_rito_bar = px.bar(
+                df_rito_com_top.sort_values(['municipio_comarca', 'qtd']),
+                x='qtd', y='municipio_comarca', color='rito',
+                orientation='h',
+                color_discrete_map=cores_rito,
+                labels={'qtd': 'Processos', 'municipio_comarca': 'Comarca', 'rito': 'Rito'},
+            )
+            fig_rito_bar.update_layout(**layout_plotly("Ritos nas 10 Maiores Comarcas"))
+            fig_rito_bar.update_layout(height=420, barmode='stack')
+            fig_rito_bar.update_yaxes(categoryorder='total ascending')
+            st.plotly_chart(fig_rito_bar, use_container_width=True)
+
+            # Tabela comparativa por rito
+            st.markdown("---")
+            st.markdown("### Tabela Comparativa — Dados Originais e Derivados")
+            sub_tab_r1, sub_tab_r2 = st.tabs(["Classe Original", "Rito Derivado"])
+
+            with sub_tab_r1:
+                if 'classe_nome' in df_f.columns:
+                    df_classe_orig = df_f['classe_nome'].value_counts().reset_index()
+                    df_classe_orig.columns = ['Classe Processual (Original)', 'Quantidade']
+                    df_classe_orig['%'] = (df_classe_orig['Quantidade'] / df_classe_orig['Quantidade'].sum() * 100).round(1)
+                    df_classe_orig.index += 1
+                    st.dataframe(df_classe_orig, use_container_width=True)
+
+            with sub_tab_r2:
+                df_rito_tab = rito_counts.reset_index()
+                df_rito_tab.columns = ['Rito (Derivado)', 'Quantidade']
+                df_rito_tab['%'] = (df_rito_tab['Quantidade'] / df_rito_tab['Quantidade'].sum() * 100).round(1)
+                df_rito_tab.index += 1
+                st.dataframe(df_rito_tab, use_container_width=True)
+        else:
+            st.info("Coluna 'rito' nao encontrada. Verifique se o data_loader esta atualizado.")
+
+    # ═══════════ ABA 11: NOTAS TÉCNICAS ═══════════
+    with aba11:
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, rgba(87,96,106,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #57606A;'>
+            <span style='font-size: 0.78rem; color: #57606A;'>
+                Documentacao das decisoes metodologicas aplicadas ao tratamento dos dados.
+                Todas as transformacoes, limpezas e derivacoes estao registradas abaixo para
+                garantir <b>transparencia</b> e <b>reprodutibilidade</b> da analise.
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("### 1. Fonte dos Dados")
+        st.markdown("""
+| Item | Descricao |
+|------|-----------|
+| **Origem** | Base de dados do TRT21 (21a Regiao — Rio Grande do Norte) |
+| **Periodo** | 2020 a 2024 |
+| **Arquivos** | `trt21_2020_capa.xlsx` a `trt21_2024_capa.xlsx` |
+| **Tipo** | Dados de capa processual (metadados) |
+| **Total de registros** | ~78.353 processos |
+| **Sistema** | PJe (Processo Judicial Eletronico) |
+        """)
+
+        st.markdown("---")
+        st.markdown("### 2. Variaveis Derivadas")
+        st.markdown("""
+As seguintes variaveis **nao existem nos dados originais** e foram criadas durante o processamento:
+
+| Variavel | Origem | Logica de Derivacao |
+|----------|--------|---------------------|
+| `municipio_comarca` | `orgaoJulgador_nome` | Regex extrai cidade apos "Vara do Trabalho de". Gabinetes → "Tribunal (2a Instancia)". |
+| `assunto_primario_nome` | `assuntos_str` | Primeiro assunto da lista separada por `\\|`, removendo o codigo numerico. |
+| `rito` | `classe_nome` | Extrai o tipo de rito (Sumarissimo, Ordinario, Sumario) da classe processual. A coluna `classe_nome` original e **preservada intacta**. |
+| `ano`, `mes`, `trimestre`, `mes_ano` | `dataAjuizamento` | Decomposicao da data de ajuizamento em componentes temporais. |
+        """)
+
+        st.markdown("---")
+        st.markdown("### 3. Normalizacao de Assuntos")
+        st.markdown("""
+A base original apresenta inconsistencias nos assuntos processuais. Aplicamos 3 etapas de normalizacao
+(modulo `normalizacao_assuntos.py`), preservando os dados originais na aba "Lista de Assuntos > Dados Originais":
+
+**Etapa 1 — Resolucao de "N/A":** Muitos codigos aparecem com o nome "N/A" em alguns registros e com
+nome real em outros. Quando um codigo possui nome real em pelo menos 1 registro, todos os "N/A" daquele
+codigo sao substituidos pelo nome real.
+
+**Etapa 2 — Unificacao de similares:** Variacoes ortograficas sao mapeadas para a forma canonica. Exemplos:
+- "Adicional de Hora Extra" → "Adicional de Horas Extras"
+- "Complementacao de Aposentadoria / Pensao" → "Complementacao de Aposentadoria/Pensao"
+- "Supressao/Reducao de Horas Extras Habituais - Indenizacao" → "Supressao/Reducao de Horas Extras/Indenizacao"
+
+**Etapa 3 — Agrupamento por nome:** Assuntos com nomes identicos mas codigos diferentes sao contabilizados juntos.
+        """)
+
+        st.markdown("---")
+        st.markdown("### 4. Saude do Trabalhador — Criterios de Filtro")
+        st.markdown("""
+A aba "Saude do Trabalhador" filtra processos com base em **dois criterios combinados** (OR):
+
+1. **Por codigo:** Codigos especificos pre-mapeados (insalubridade, acidente, doenca ocupacional, danos, assedio, etc.)
+2. **Por nome:** Regex que captura termos como: saude, doenca, acidente, insalubr, periculosid, dano, assedio, morte, COVID, etc.
+
+**Categorias identificadas:**
+- Insalubridade/Periculosidade (adicional, cumulacao, compensacao)
+- Acidente de Trabalho e Doenca Ocupacional
+- Danos (moral, material, estetico, coletivo)
+- Assedio (moral e sexual)
+- Outros (morte, plano de saude, COVID-19)
+        """)
+
+        st.markdown("---")
+        st.markdown("### 5. Dados Socioeconomicos do Mapa")
+        st.markdown("""
+| Indicador | Fonte | Atualizacao |
+|-----------|-------|-------------|
+| **Populacao** | API IBGE (Tabela 6579) | Estimativa mais recente disponivel |
+| **PIB per capita** | API IBGE (Tabela 5938) | Calculado: PIB total * 1000 / Populacao |
+| **Area territorial** | API IBGE (Tabela 1301) | Dados oficiais |
+| **IDHM** | Atlas Brasil / PNUD | **Censo 2010** (ultimo disponivel em nivel municipal) |
+
+> **Nota sobre o IDHM:** O Indice de Desenvolvimento Humano Municipal (IDHM) utilizado e proveniente
+> do Censo Demografico de 2010, que e a **unica fonte publica de IDHM em nivel municipal** disponivel
+> no Brasil. O Censo 2022 ainda nao publicou IDHM municipalizado. Quando disponibilizado, os dados
+> serao atualizados. Os valores estao armazenados estaticamente no modulo `dados_ibge_rn.py`.
+        """)
+
+        st.markdown("---")
+        st.markdown("### 6. Estrutura de Varas Trabalhistas")
+        st.markdown("""
+O mapeamento de municipios para varas trabalhistas segue o arquivo oficial
+`TRT21 - Pagina1 (1).csv`, que define a jurisdicao de cada uma das **9 varas** do RN.
+Todos os 167 municipios do estado estao mapeados.
+        """)
+
+        st.markdown("---")
+        st.caption("Ultima atualizacao das notas tecnicas: Junho/2025 · Observatorio dos Direitos Sociais do Semiarido · UFERSA")

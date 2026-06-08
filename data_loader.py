@@ -126,6 +126,26 @@ def carregar_trt21_ulisses():
     if 'assuntos_str' in df.columns:
         df['assunto_primario_nome'] = df['assuntos_str'].apply(_extrair_assunto_primario)
 
+    # ── Derivar RITO a partir de classe_nome ──
+    # Valores conhecidos: "Ação Trabalhista - Rito Sumaríssimo",
+    #                     "Ação Trabalhista - Rito Ordinário",
+    #                     "Ação Trabalhista - Rito Sumário (Alçada)"
+    # A coluna classe_nome original é preservada intacta.
+    def _extrair_rito(classe: str) -> str:
+        if not isinstance(classe, str):
+            return 'Não informado'
+        cl = classe.upper()
+        if 'SUMARÍSSIMO' in cl or 'SUMARISSIMO' in cl:
+            return 'Rito Sumaríssimo'
+        elif 'SUMÁRIO' in cl or 'SUMARIO' in cl:
+            return 'Rito Sumário'
+        elif 'ORDINÁRIO' in cl or 'ORDINARIO' in cl:
+            return 'Rito Ordinário'
+        return 'Outro'
+
+    if 'classe_nome' in df.columns:
+        df['rito'] = df['classe_nome'].apply(_extrair_rito)
+
     return df
 
 
