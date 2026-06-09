@@ -27,6 +27,9 @@ _MAPA_SIMILARIDADE = {
     "Alteração Contratual": "Alteração Contratual ou das Condições de Trabalho",
     "Prescrição e Decadência": "Prescrição e Decadência no Direito do Trabalho",
     "Repouso Semanal Remunerado": "Repouso Semanal Remunerado e Feriado",
+
+    # Capitalização diferente
+    "Acidente de trabalho": "Acidente de Trabalho",
 }
 
 
