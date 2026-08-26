@@ -481,7 +481,7 @@ def render_trt21(df_raw: pd.DataFrame):
                 df_mun = pd.DataFrame(mun_rows)
 
                 # ── Mapa choropleth flat — RN com contexto dos estados vizinhos ──
-                fig_mapa = px.choropleth_mapbox(
+                fig_mapa = px.choropleth_map(
                     df_mun,
                     geojson=geojson_rn,
                     locations='mun_id',
@@ -495,7 +495,7 @@ def render_trt21(df_raw: pd.DataFrame):
                         [0.75, "#58A6FF"],
                         [1.0,  "#A5D3FF"],
                     ],
-                    mapbox_style="carto-darkmatter",
+                    map_style="carto-darkmatter",
                     zoom=7.0,
                     center={"lat": -5.80, "lon": -36.40},
                     opacity=0.92,
@@ -523,10 +523,10 @@ def render_trt21(df_raw: pd.DataFrame):
                 except Exception:
                     estados_vizinhos = {}
 
-                mapbox_layers = []
+                map_layers = []
                 for nome_estado, geojson_estado in estados_vizinhos.items():
                     # Preenchimento sutil para diferenciar do fundo
-                    mapbox_layers.append(dict(
+                    map_layers.append(dict(
                         sourcetype="geojson",
                         source=geojson_estado,
                         type="fill",
@@ -534,7 +534,7 @@ def render_trt21(df_raw: pd.DataFrame):
                         below="traces",
                     ))
                     # Contorno estadual externo
-                    mapbox_layers.append(dict(
+                    map_layers.append(dict(
                         sourcetype="geojson",
                         source=geojson_estado,
                         type="line",
@@ -546,8 +546,8 @@ def render_trt21(df_raw: pd.DataFrame):
                 fig_mapa.update_layout(
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
-                    mapbox=dict(
-                        layers=mapbox_layers,
+                    map=dict(
+                        layers=map_layers,
                     ),
                     margin=dict(l=0, r=0, t=0, b=0),
                     height=650,

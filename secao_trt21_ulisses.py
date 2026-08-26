@@ -505,7 +505,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 if df_vara.empty:
                     continue
 
-                fig_mapa.add_trace(go.Choroplethmapbox(
+                fig_mapa.add_trace(go.Choroplethmap(
                     geojson=geojson_rn,
                     locations=df_vara['mun_id'],
                     featureidkey='properties.id',
@@ -539,7 +539,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
             # Municipios sem vara (se houver)
             df_sem = df_mun[df_mun['vara'] == 'Sem vara']
             if not df_sem.empty:
-                fig_mapa.add_trace(go.Choroplethmapbox(
+                fig_mapa.add_trace(go.Choroplethmap(
                     geojson=geojson_rn,
                     locations=df_sem['mun_id'],
                     featureidkey='properties.id',
@@ -562,13 +562,13 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
             except Exception:
                 estados_vizinhos = {}
 
-            mapbox_layers = []
+            map_layers = []
             for nome_estado, geojson_estado in estados_vizinhos.items():
-                mapbox_layers.append(dict(
+                map_layers.append(dict(
                     sourcetype="geojson", source=geojson_estado,
                     type="fill", color="rgba(240, 244, 248, 0.6)", below="traces",
                 ))
-                mapbox_layers.append(dict(
+                map_layers.append(dict(
                     sourcetype="geojson", source=geojson_estado,
                     type="line", color="rgba(189, 221, 245, 0.5)",
                     line=dict(width=0.6), below="traces",
@@ -577,11 +577,11 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
             fig_mapa.update_layout(
                 paper_bgcolor="rgba(255,255,255,0)",
                 plot_bgcolor="rgba(255,255,255,0)",
-                mapbox=dict(
+                map=dict(
                     style="carto-positron",
                     zoom=7.0,
                     center={"lat": -5.80, "lon": -36.40},
-                    layers=mapbox_layers,
+                    layers=map_layers,
                 ),
                 margin=dict(l=0, r=0, t=0, b=0),
                 height=680,
