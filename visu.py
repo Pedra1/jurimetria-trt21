@@ -504,6 +504,7 @@ _MUNICIPIO_PARA_COMARCA = {
     "São Miguel": "Pau dos Ferros",
     # Augusto Severo (Campo Grande) / Janduís / Upanema / Triunfo Potiguar → Vara de Assu
     "Augusto Severo": "Assu",    # CSV: Campo Grande (Augusto Severo) – Vara de Assu
+    "Campo Grande": "Assu",      # Nome oficial IBGE/GeoJSON do município Augusto Severo
     "Janduís": "Assu",           # CSV: Vara de Assu
     "Upanema": "Assu",           # CSV: Vara de Assu
     "Triunfo Potiguar": "Assu",  # CSV: Vara de Assu
