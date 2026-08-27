@@ -39,7 +39,8 @@ _IDHM_RN = {
     "Angicos": 0.623, "Almino Afonso": 0.608, "Tenente Laurentino Cruz": 0.600,
     "Equador": 0.616, "São Paulo do Potengi": 0.634, "Nísia Floresta": 0.628,
     "Martins": 0.623, "Portalegre": 0.622, "Doutor Severiano": 0.617,
-    "Campo Grande": 0.611, "Santo Antônio": 0.617, "Umarizal": 0.616,
+    "Campo Grande": 0.611, "Augusto Severo": 0.611,  # mesmo município, nomes diferentes (IBGE vs GeoJSON)
+    "Santo Antônio": 0.617, "Umarizal": 0.616,
     "Patu": 0.614, "Major Sales": 0.608, "Ceará-Mirim": 0.616,
     "Água Nova": 0.601, "São José do Campestre": 0.614,
     "Janduís": 0.609, "Serra do Mel": 0.603, "Pilões": 0.607,
@@ -304,5 +305,14 @@ def carregar_dados_ibge():
 
     except Exception as e:
         st.warning(f"Erro ao carregar dados do IBGE: {e}. Usando dados parciais.")
+
+    # ── Aliases: municípios com nomes diferentes no GeoJSON vs API IBGE ──
+    # O GeoJSON usa "Augusto Severo"; a API IBGE usa "Campo Grande"
+    _ALIASES = {
+        "Augusto Severo": "Campo Grande",
+    }
+    for nome_geo, nome_api in _ALIASES.items():
+        if nome_geo not in resultado and nome_api in resultado:
+            resultado[nome_geo] = resultado[nome_api].copy()
 
     return resultado
