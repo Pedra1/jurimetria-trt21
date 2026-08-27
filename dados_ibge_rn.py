@@ -25,7 +25,7 @@ _IDHM_RN = {
     "Ipueira": 0.654, "Acari": 0.679, "Pau dos Ferros": 0.678,
     "Parelhas": 0.676, "Alto do Rodrigues": 0.673, "Macau": 0.665,
     "Rafael Godeiro": 0.660, "Grossos": 0.664, "Jardim do Seridó": 0.660,
-    "São Gonçalo do Amarante": 0.660, "Açu": 0.658, "Extremoz": 0.660,
+    "São Gonçalo do Amarante": 0.660, "Açu": 0.658, "Assu": 0.658, "Extremoz": 0.660,
     "Carnaúba dos Dantas": 0.659, "São João do Sabugi": 0.657,
     "Cruzeta": 0.652, "Lucrecia": 0.652, "Tibau do Sul": 0.649,
     "Ouro Branco": 0.649, "Messias Targino": 0.648, "São Vicente": 0.647,
@@ -50,7 +50,7 @@ _IDHM_RN = {
     "São Fernando": 0.601, "Rafael Fernandes": 0.596,
     "Maxaranguape": 0.595, "Luís Gomes": 0.593, "José da Penha": 0.592,
     "São Miguel": 0.606, "Passa e Fica": 0.591,
-    "Francisco Dantas": 0.590, "Cerro Corá": 0.590, "Arês": 0.606,
+    "Francisco Dantas": 0.590, "Cerro Corá": 0.590, "Arês": 0.606, "Arez": 0.606,
     "Alexandria": 0.606, "Ruy Barbosa": 0.590,
     "Severiano Melo": 0.588, "Rodolfo Fernandes": 0.591,
     "Jaçanã": 0.588, "Jardim de Piranhas": 0.586,
@@ -69,7 +69,7 @@ _IDHM_RN = {
     "Passagem": 0.565, "Paraná": 0.562, "Lagoa de Velhos": 0.561,
     "Carnaubais": 0.559, "Vera Cruz": 0.558, "Poço Branco": 0.563,
     "Coronel Ezequiel": 0.560, "Caiçara do Rio do Vento": 0.558,
-    "São Tomé": 0.557, "Olho-d'Água do Borges": 0.556,
+    "São Tomé": 0.557, "Olho-d'Água do Borges": 0.556, "Olho d'Água do Borges": 0.556,
     "Lagoa Nova": 0.556, "Afonso Bezerra": 0.554,
     "Riacho da Cruz": 0.555, "Bom Jesus": 0.554,
     "Senador Elói de Souza": 0.552, "Serra de São Bento": 0.549,
@@ -83,7 +83,7 @@ _IDHM_RN = {
     "Rio do Fogo": 0.543, "Japi": 0.541, "Jandaíra": 0.540,
     "Pedro Velho": 0.543, "Pureza": 0.539,
     "Barcelona": 0.536, "Jardim de Angicos": 0.540,
-    "Galinhos": 0.536, "Presidente Juscelino": 0.537,
+    "Galinhos": 0.536, "Presidente Juscelino": 0.537, "Serra Caiada": 0.537,
     "Pedra Grande": 0.530, "Pedra Preta": 0.533,
     "Espírito Santo": 0.539, "Montanhas": 0.537,
     "Venha-Ver": 0.531, "São Bento do Norte": 0.533,
@@ -307,9 +307,14 @@ def carregar_dados_ibge():
         st.warning(f"Erro ao carregar dados do IBGE: {e}. Usando dados parciais.")
 
     # ── Aliases: municípios com nomes diferentes no GeoJSON vs API IBGE ──
-    # O GeoJSON usa "Augusto Severo"; a API IBGE usa "Campo Grande"
+    # Mapeamento completo auditado comparando geojs-24-mun.json com a API IBGE
     _ALIASES = {
-        "Augusto Severo": "Campo Grande",
+        # GeoJSON nome          : API IBGE nome
+        "Augusto Severo"        : "Campo Grande",          # renomeado; GeoJSON usa nome antigo
+        "Açu"                   : "Assu",                   # GeoJSON usa acento; API usa sem acento
+        "Arês"                  : "Arez",                   # GeoJSON usa acento; API usa sem acento
+        "Olho-d'\u00c1gua do Borges": "Olho d'\u00c1gua do Borges",  # hífen vs espaço
+        "Presidente Juscelino"  : "Serra Caiada",           # município renomeado
     }
     for nome_geo, nome_api in _ALIASES.items():
         if nome_geo not in resultado and nome_api in resultado:
