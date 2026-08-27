@@ -75,22 +75,38 @@ st.markdown("""
         letter-spacing: -0.03em !important;
     }
 
-    /* Modern Tabs layout customization */
+    /* Modern Tabs layout customization - Bulletproof inner elements override */
     button[data-baseweb="tab"] {
         font-family: 'Plus Jakarta Sans', sans-serif !important;
         font-weight: 600 !important;
         font-size: 0.88rem !important;
-        color: #64748B !important;
+        color: #64748B !important; /* Slate 500 */
         padding: 0.75rem 1.25rem !important;
         transition: all 0.2s ease !important;
         border-bottom-width: 2px !important;
     }
-    button[data-baseweb="tab"]:hover {
-        color: #0F172A !important;
+    button[data-baseweb="tab"] *,
+    button[data-baseweb="tab"] div,
+    button[data-baseweb="tab"] p,
+    button[data-baseweb="tab"] span {
+        color: #64748B !important;
+        transition: all 0.2s ease !important;
+    }
+    button[data-baseweb="tab"]:hover *,
+    button[data-baseweb="tab"]:hover div,
+    button[data-baseweb="tab"]:hover p,
+    button[data-baseweb="tab"]:hover span {
+        color: #0F172A !important; /* Slate 900 */
     }
     button[data-baseweb="tab"][aria-selected="true"] {
-        color: #0969DA !important;
-        border-bottom-color: #0969DA !important;
+        border-bottom-color: #0969DA !important; /* Blue 600 */
+    }
+    button[data-baseweb="tab"][aria-selected="true"] *,
+    button[data-baseweb="tab"][aria-selected="true"] div,
+    button[data-baseweb="tab"][aria-selected="true"] p,
+    button[data-baseweb="tab"][aria-selected="true"] span {
+        color: #0969DA !important; /* Blue 600 */
+        font-weight: 700 !important;
     }
 
     /* Professional dark sidebar aesthetic */
