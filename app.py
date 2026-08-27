@@ -54,18 +54,24 @@ st.markdown("""
         border-color: #CBD5E1 !important;
     }
     
-    /* Metrics Label and Value Styling */
-    div[data-testid="stMetricLabel"] > div {
-        font-size: 0.8rem !important;
+    /* Metrics Label and Value Styling - Bulletproof override */
+    div[data-testid="stMetric"] label,
+    div[data-testid="stMetric"] [data-testid="stMetricLabel"],
+    div[data-testid="stMetric"] [data-testid="stMetricLabel"] *,
+    div[data-testid="stMetricLabel"] > div,
+    div[data-testid="stMetricLabel"] p {
+        font-size: 0.78rem !important;
         text-transform: uppercase !important;
         letter-spacing: 0.05em !important;
-        color: #64748B !important;
-        font-weight: 600 !important;
+        color: #475569 !important; /* Dark Slate Grey */
+        font-weight: 700 !important;
     }
+    div[data-testid="stMetric"] [data-testid="stMetricValue"],
+    div[data-testid="stMetric"] [data-testid="stMetricValue"] *,
     div[data-testid="stMetricValue"] > div {
         font-size: 1.8rem !important;
         font-weight: 700 !important;
-        color: #0F172A !important;
+        color: #0F172A !important; /* Slate 900 */
         letter-spacing: -0.03em !important;
     }
 
