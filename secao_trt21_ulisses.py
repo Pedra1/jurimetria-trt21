@@ -562,24 +562,6 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     hovertemplate="<b>%{customdata[0]}</b><br>Sem vara definida<extra></extra>",
                 ))
 
-            # -- Estados vizinhos --
-            try:
-                estados_vizinhos = _carregar_geojson_vizinhos()
-            except Exception:
-                estados_vizinhos = {}
-
-            map_layers = []
-            for nome_estado, geojson_estado in estados_vizinhos.items():
-                map_layers.append(dict(
-                    sourcetype="geojson", source=geojson_estado,
-                    type="fill", color="rgba(240, 244, 248, 0.6)", below="traces",
-                ))
-                map_layers.append(dict(
-                    sourcetype="geojson", source=geojson_estado,
-                    type="line", color="rgba(189, 221, 245, 0.5)",
-                    line=dict(width=0.6), below="traces",
-                ))
-
             fig_mapa.update_layout(
                 paper_bgcolor="rgba(255,255,255,0)",
                 plot_bgcolor="rgba(255,255,255,0)",
@@ -587,7 +569,6 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                     style="carto-positron",
                     zoom=7.0,
                     center={"lat": -5.80, "lon": -36.40},
-                    layers=map_layers,
                 ),
                 margin=dict(l=0, r=0, t=0, b=0),
                 height=680,
