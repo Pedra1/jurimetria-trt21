@@ -566,7 +566,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 paper_bgcolor="rgba(255,255,255,0)",
                 plot_bgcolor="rgba(255,255,255,0)",
                 map=dict(
-                    style="carto-positron",
+                    style="white-bg",
                     zoom=7.0,
                     center={"lat": -5.80, "lon": -36.40},
                 ),
