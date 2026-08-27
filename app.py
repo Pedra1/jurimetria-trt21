@@ -109,10 +109,10 @@ st.markdown("""
         font-weight: 700 !important;
     }
 
-    /* Professional dark sidebar aesthetic */
+    /* Professional light sidebar aesthetic */
     section[data-testid="stSidebar"] {
-        background-color: #0F172A !important;
-        border-right: 1px solid #1E293B !important;
+        background-color: #F1F5F9 !important;
+        border-right: 1px solid #E2E8F0 !important;
     }
     section[data-testid="stSidebar"] .stMarkdown,
     section[data-testid="stSidebar"] .stMarkdown p,
@@ -120,10 +120,16 @@ st.markdown("""
     section[data-testid="stSidebar"] label p,
     section[data-testid="stSidebar"] div[role="radiogroup"] p,
     section[data-testid="stSidebar"] div[role="radiogroup"] span {
-        color: #E2E8F0 !important;
+        color: #334155 !important; /* Dark charcoal */
+    }
+    /* Highlight the selected radio label in blue */
+    section[data-testid="stSidebar"] div[role="radiogroup"] [aria-checked="true"] p,
+    section[data-testid="stSidebar"] div[role="radiogroup"] [aria-checked="true"] span {
+        color: #0969DA !important; /* Blue 600 */
+        font-weight: 700 !important;
     }
     section[data-testid="stSidebar"] hr {
-        border-color: #1E293B !important;
+        border-color: #E2E8F0 !important;
     }
 
     /* Spacing adjustments */
@@ -155,16 +161,16 @@ with st.sidebar:
         <div style='text-align:center; padding: 0.8rem 0 0.3rem;'>
             <img src='{_LOGO_SRC}' style='width: 130px; border-radius: 10px; margin-bottom: 0.4rem;' alt='ODSS DataLab'>
             <br>
-            <span style='font-size: 0.95rem; font-weight: 700; color: #58A6FF; letter-spacing: 0.05em;'>JUDICIALIZAÇÃO RN</span><br>
-            <span style='font-size: 0.65rem; color: #8B949E; text-transform: uppercase; letter-spacing: 0.1em;'>Direitos Sociais · Multi-Tribunal</span>
+            <span style='font-size: 0.95rem; font-weight: 800; color: #0969DA; letter-spacing: 0.05em;'>JUDICIALIZAÇÃO RN</span><br>
+            <span style='font-size: 0.65rem; color: #475569; text-transform: uppercase; letter-spacing: 0.1em;'>Direitos Sociais · Multi-Tribunal</span>
         </div>
         """, unsafe_allow_html=True)
     else:
         st.markdown("""
         <div style='text-align:center; padding: 1rem 0 0.5rem;'>
             <span style='font-size: 2.2rem;'>⚖️</span><br>
-            <span style='font-size: 0.95rem; font-weight: 700; color: #58A6FF; letter-spacing: 0.05em;'>JUDICIALIZAÇÃO RN</span><br>
-            <span style='font-size: 0.65rem; color: #8B949E; text-transform: uppercase; letter-spacing: 0.1em;'>Direitos Sociais · Multi-Tribunal</span>
+            <span style='font-size: 0.95rem; font-weight: 800; color: #0969DA; letter-spacing: 0.05em;'>JUDICIALIZAÇÃO RN</span><br>
+            <span style='font-size: 0.65rem; color: #475569; text-transform: uppercase; letter-spacing: 0.1em;'>Direitos Sociais · Multi-Tribunal</span>
         </div>
         """, unsafe_allow_html=True)
 
@@ -222,23 +228,23 @@ elif "JFRN" in secao:
 st.divider()
 _footer_logo = f"<img src='{_LOGO_SRC}' style='width: 100px; border-radius: 8px; margin-bottom: 0.8rem; opacity: 0.92;' alt='ODSS DataLab'>" if _LOGO_B64 else ""
 st.markdown(f"""
-<div style='text-align: center; padding: 1.5rem 1rem; color: #8B949E; font-size: 0.78rem; line-height: 1.8;'>
+<div style='text-align: center; padding: 1.5rem 1rem; color: #475569; font-size: 0.78rem; line-height: 1.8;'>
     {_footer_logo}
     <div style='margin-bottom: 0.6rem;'>
-        <span style='font-weight: 700; color: #58A6FF; letter-spacing: 0.03em;'>Judicialização dos Direitos Sociais</span>
-        <span style='color: #484F58;'> · </span>
-        <span>Rio Grande do Norte</span>
+        <span style='font-weight: 700; color: #0969DA; letter-spacing: 0.03em;'>Judicialização dos Direitos Sociais</span>
+        <span style='color: #94A3B8;'> · </span>
+        <span style='color: #475569;'>Rio Grande do Norte</span>
     </div>
-    <div style='margin-bottom: 0.8rem; color: #6E7681; font-size: 0.72rem;'>
+    <div style='margin-bottom: 0.8rem; color: #475569; font-size: 0.72rem;'>
         Desenvolvido no âmbito do projeto
-        <span style='color: #58A6FF; font-weight: 600;'>Observatório dos Direitos Sociais do Semiárido (ODSS)</span>
-        · <span style='color: #C9D1D9;'>UFERSA</span><br>
-        <span style='color: #484F58; font-size: 0.65rem;'>Financiamento: CNPq/MCTI/FNDCT · Chamada nº 44/2024</span>
+        <span style='color: #0969DA; font-weight: 600;'>Observatório dos Direitos Sociais do Semiárido (ODSS)</span>
+        · <span style='color: #0F172A; font-weight: 600;'>UFERSA</span><br>
+        <span style='color: #64748B; font-size: 0.65rem;'>Financiamento: CNPq/MCTI/FNDCT · Chamada nº 44/2024</span>
     </div>
-    <div style='display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; font-size: 0.68rem; color: #484F58;'>
-        <span>📊 Dados: <span style='color: #6E7681;'>DataJud · CNJ (API pública)</span></span>
-        <span>🔬 Metodologia: <span style='color: #6E7681;'>Análise Quantitativa e Jurimetria</span></span>
-        <span>📅 Processamento: <span style='color: #6E7681;'>{datetime.now().strftime('%d/%m/%Y %H:%M')}</span></span>
+    <div style='display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; font-size: 0.68rem; color: #64748B;'>
+        <span>📊 Dados: <span style='color: #475569; font-weight: 500;'>DataJud · CNJ (API pública)</span></span>
+        <span>🔬 Metodologia: <span style='color: #475569; font-weight: 500;'>Análise Quantitativa e Jurimetria</span></span>
+        <span>📅 Processamento: <span style='color: #475569; font-weight: 500;'>{datetime.now().strftime('%d/%m/%Y %H:%M')}</span></span>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -246,11 +252,11 @@ st.markdown(f"""
 # ── Sidebar footer ──
 with st.sidebar:
     st.markdown(f"""
-    <div style='text-align:center; padding: 0.5rem 0 0.2rem; border-top: 1px solid #21262D; margin-top: 0.5rem;'>
-        <span style='font-size: 0.6rem; color: #58A6FF; font-weight: 600; letter-spacing: 0.05em;'>ODSS · UFERSA</span><br>
-        <span style='font-size: 0.5rem; color: #484F58; margin-top: 2px; display: inline-block;'>
+    <div style='text-align:center; padding: 0.5rem 0 0.2rem; border-top: 1px solid #E2E8F0; margin-top: 0.5rem;'>
+        <span style='font-size: 0.6rem; color: #0969DA; font-weight: 700; letter-spacing: 0.05em;'>ODSS · UFERSA</span><br>
+        <span style='font-size: 0.5rem; color: #475569; margin-top: 2px; display: inline-block;'>
             Dados: DataJud / CNJ
         </span>
     </div>
     """, unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:0.7rem; color:#8B949E; text-align:center;'>Atualizado em {datetime.now().strftime('%d/%m/%Y')}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:0.7rem; color:#475569; text-align:center;'>Atualizado em {datetime.now().strftime('%d/%m/%Y')}</p>", unsafe_allow_html=True)
