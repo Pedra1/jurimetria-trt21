@@ -92,9 +92,12 @@ st.markdown("""
         background-color: #0F172A !important;
         border-right: 1px solid #1E293B !important;
     }
-    section[data-testid="stSidebar"] .stMarkdown, 
-    section[data-testid="stSidebar"] .stRadio label,
-    section[data-testid="stSidebar"] p {
+    section[data-testid="stSidebar"] .stMarkdown,
+    section[data-testid="stSidebar"] .stMarkdown p,
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] label p,
+    section[data-testid="stSidebar"] div[role="radiogroup"] p,
+    section[data-testid="stSidebar"] div[role="radiogroup"] span {
         color: #E2E8F0 !important;
     }
     section[data-testid="stSidebar"] hr {
