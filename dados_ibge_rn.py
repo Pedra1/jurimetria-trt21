@@ -98,7 +98,8 @@ _IDHM_RN = {
 
 _VARA_MUNICIPIOS = {
     "Assu": [
-        "Açu", "Angicos", "Campo Grande", "Carnaubais", "Fernando Pedroza",
+        "Açu", "Angicos", "Campo Grande", "Augusto Severo",  # Campo Grande = Augusto Severo (nome GeoJSON IBGE)
+        "Carnaubais", "Fernando Pedroza",
         "Ipanguaçu", "Itajá", "Janduís", "Lajes", "Paraú",
         "Porto do Mangue", "Santana do Matos", "São Rafael",
         "Triunfo Potiguar", "Upanema",
