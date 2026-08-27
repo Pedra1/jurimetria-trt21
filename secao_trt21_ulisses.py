@@ -114,24 +114,29 @@ _MUNICIPIO_PARA_COMARCA = {
     "Poço Branco": "Ceará-Mirim", "Bento Fernandes": "Ceará-Mirim",
     "Maxaranguape": "Ceará-Mirim", "Rio do Fogo": "Ceará-Mirim",
     "Touros": "Ceará-Mirim", "Pureza": "Ceará-Mirim",
+    "João Câmara": "Ceará-Mirim",  # CSV: Vara de Ceará-Mirim
+    "Pedra Preta": "Ceará-Mirim",  # CSV: Vara de Ceará-Mirim
+    "Parazinho": "Ceará-Mirim",    # CSV: Vara de Ceará-Mirim
+    "Pedra Grande": "Ceará-Mirim", # CSV: Vara de Ceará-Mirim
     "São Pedro": "Macaíba",
     # Oeste — Mossoró
     "Mossoró": "Mossoró", "Baraúna": "Mossoró", "Grossos": "Mossoró",
     "Tibau": "Mossoró", "Areia Branca": "Mossoró", "Serra do Mel": "Mossoró",
     # Macau / Salineira
     "Macau": "Macau", "Guamaré": "Macau", "Galinhos": "Macau",
-    "Porto do Mangue": "Macau", "Pendências": "Macau",
-    "Alto do Rodrigues": "Macau", "Carnaubais": "Macau",
-    "Jandaíra": "Macau", "Pedra Grande": "Macau",
+    "Pendências": "Macau",
+    "Alto do Rodrigues": "Macau", "Jandaíra": "Macau",
     "São Bento do Norte": "Macau", "Caiçara do Norte": "Macau",
-    "Parazinho": "Macau",
+    "Pedro Avelino": "Macau",  # CSV: Vara de Macau
     # Vale do Açu
-    "Açu": "Açu", "Assu": "Assu", "Ipanguaçu": "Assu",
+    "Açu": "Assu", "Assu": "Assu", "Ipanguaçu": "Assu",
     "São Rafael": "Assu", "Itajá": "Assu", "Paraú": "Assu",
-    "Pedro Avelino": "Assu", "Angicos": "Assu",
+    "Angicos": "Assu",
     "Fernando Pedroza": "Assu", "Lajes": "Assu",
     "Jardim de Angicos": "Assu", "Afonso Bezerra": "Assu",
-    "Bodó": "Assu",
+    "Carnaubais": "Assu",     # CSV: Vara de Assu
+    "Porto do Mangue": "Assu",  # CSV: Vara de Assu
+    "Santana do Matos": "Assu",  # CSV: "Santana dos Matos" – Vara de Assu
     # Alto Oeste — Pau dos Ferros
     "Pau dos Ferros": "Pau dos Ferros", "São Francisco do Oeste": "Pau dos Ferros",
     "Portalegre": "Pau dos Ferros", "Viçosa": "Pau dos Ferros",
@@ -156,7 +161,7 @@ _MUNICIPIO_PARA_COMARCA = {
     "Equador": "Currais Novos", "Cerro Corá": "Currais Novos",
     "Lagoa Nova": "Currais Novos", "Florânia": "Currais Novos",
     "São Vicente": "Currais Novos", "Tenente Laurentino Cruz": "Currais Novos",
-    "Santana do Matos": "Currais Novos",
+    "Bodó": "Currais Novos",  # CSV: Vara de Currais Novos
     # Trairi — Santa Cruz
     "Santa Cruz": "Santa Cruz", "Tangará": "Santa Cruz",
     "São Paulo do Potengi": "São Paulo do Potengi",
@@ -184,25 +189,21 @@ _MUNICIPIO_PARA_COMARCA = {
     "Jundiá": "Nova Cruz", "Monte das Gameleiras": "Nova Cruz",
     "Serrinha": "Nova Cruz", "Serra de São Bento": "Nova Cruz",
     "Santo Antônio": "Nova Cruz", "Bom Jesus": "Nova Cruz",
-    # Oeste — Caraúbas
-    "Caraúbas": "Caraúbas", "Governador Dix-Sept Rosado": "Caraúbas",
-    "Felipe Guerra": "Caraúbas", "Janduís": "Caraúbas",
-    "Messias Targino": "Caraúbas", "Upanema": "Caraúbas",
-    # Oeste — Apodi
-    "Apodi": "Apodi", "Itaú": "Apodi", "Severiano Melo": "Apodi",
-    "Rodolfo Fernandes": "Apodi", "Umarizal": "Apodi",
-    "Olho-d'Água do Borges": "Apodi",
-    # Agreste — João Câmara
-    "João Câmara": "João Câmara", "Jandaíra": "João Câmara",
-    "Pedra Preta": "João Câmara",
-    # Restante — Patu, Almino Afonso, Lucrécia, Frutuoso Gomes, Martins, etc
-    "Patu": "Caraúbas", "Almino Afonso": "Caraúbas",
-    "Lucrécia": "Caraúbas", "Frutuoso Gomes": "Caraúbas",
-    "Martins": "Caraúbas", "Antônio Martins": "Caraúbas",
+    # Oeste — Mossoró (Caraúbas)
+    # Nota: Janduís e Upanema pertencem à Vara de Assu (CSV oficial), não à de Mossoró/Caraúbas
+    "Caraúbas": "Mossoró", "Governador Dix-Sept Rosado": "Mossoró",
+    "Felipe Guerra": "Mossoró", "Messias Targino": "Mossoró",
+    # Alto Oeste — Pau dos Ferros (municípios antes erroneamente em Caraúbas)
+    "Patu": "Pau dos Ferros", "Almino Afonso": "Pau dos Ferros",
+    "Lucrécia": "Pau dos Ferros", "Frutuoso Gomes": "Pau dos Ferros",
+    "Martins": "Pau dos Ferros", "Antônio Martins": "Pau dos Ferros",
     "São Miguel": "Pau dos Ferros",
-    # Augusto Severo (Campo Grande) / Triunfo Potiguar
-    "Augusto Severo": "Caraúbas", "Triunfo Potiguar": "Assu",
-    "Jucurutu": "Caicó",
+    # Augusto Severo (Campo Grande) / Janduís / Upanema / Triunfo Potiguar → Vara de Assu
+    "Augusto Severo": "Assu",    # CSV: Campo Grande (Augusto Severo) – Vara de Assu
+    "Janduís": "Assu",           # CSV: Vara de Assu
+    "Upanema": "Assu",           # CSV: Vara de Assu
+    "Triunfo Potiguar": "Assu",  # CSV: Vara de Assu
+    "Jucurutu": "Caicó",         # CSV: Vara de Caicó
 }
 
 
