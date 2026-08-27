@@ -22,20 +22,20 @@ COR_CIANO = "#0598BC"
 COR_LARANJA = "#BC4C00"
 FUNDO_PLOT = "rgba(255,255,255,0)"
 FUNDO_PAPEL = "rgba(255,255,255,0)"
-FONTE_PLOT = dict(family="Sora, sans-serif", size=12, color="#57606A")
-LINHA_GRADE = "#D0D7DE"
-TEXTO_EIXO = "#57606A"
+FONTE_PLOT = dict(family="'Plus Jakarta Sans', 'Inter', sans-serif", size=12, color="#475569")
+LINHA_GRADE = "#E2E8F0"
+TEXTO_EIXO = "#475569"
 CORES_MULTI = [COR_PRIMARIA, COR_ROXO, COR_CIANO, COR_LARANJA, COR_SECUNDARIA, COR_ALERTA, COR_PERIGO, "#BF3989", "#6E7781", "#D4A0D9"]
 
 def layout_plotly(titulo=""):
     return dict(
-        title=dict(text=titulo, font=dict(family="Sora, sans-serif", size=14, color="#1F2328"), x=0.01, xanchor="left"),
+        title=dict(text=titulo, font=dict(family="'Plus Jakarta Sans', sans-serif", size=14, color="#0F172A", weight=700), x=0.01, xanchor="left"),
         paper_bgcolor=FUNDO_PAPEL, plot_bgcolor=FUNDO_PLOT, font=FONTE_PLOT,
         margin=dict(l=20, r=20, t=50, b=20),
-        legend=dict(bgcolor="rgba(246,248,250,0.9)", bordercolor="#D0D7DE", borderwidth=1, font=dict(color="#57606A", size=11)),
-        xaxis=dict(gridcolor=LINHA_GRADE, tickcolor=LINHA_GRADE, tickfont=dict(color=TEXTO_EIXO, size=11), linecolor="#D0D7DE", zerolinecolor="#D0D7DE"),
-        yaxis=dict(gridcolor=LINHA_GRADE, tickcolor=LINHA_GRADE, tickfont=dict(color=TEXTO_EIXO, size=11), linecolor="#D0D7DE", zerolinecolor="#D0D7DE"),
-        hoverlabel=dict(bgcolor="#F6F8FA", bordercolor="#0969DA", font=dict(family="Sora, sans-serif", size=12, color="#1F2328")),
+        legend=dict(bgcolor="rgba(255,255,255,0.9)", bordercolor="#E2E8F0", borderwidth=1, font=dict(color="#475569", size=11)),
+        xaxis=dict(gridcolor=LINHA_GRADE, tickcolor=LINHA_GRADE, tickfont=dict(color=TEXTO_EIXO, size=11), linecolor="#E2E8F0", zerolinecolor="#E2E8F0"),
+        yaxis=dict(gridcolor=LINHA_GRADE, tickcolor=LINHA_GRADE, tickfont=dict(color=TEXTO_EIXO, size=11), linecolor="#E2E8F0", zerolinecolor="#E2E8F0"),
+        hoverlabel=dict(bgcolor="#FFFFFF", bordercolor="#E2E8F0", font=dict(family="'Plus Jakarta Sans', sans-serif", size=12, color="#0F172A")),
     )
 
 def _normalizar(texto: str) -> str:

@@ -16,6 +16,100 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# ── Custom CSS for Premium Design & Brand Customization ──
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+    /* Global Typography & Font Family override */
+    html, body, [class*="css"], .stApp {
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    }
+
+    /* Soft Slate Background for Main Area */
+    .stApp {
+        background-color: #F8FAFC !important;
+    }
+
+    /* Professional Headings styling */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 700 !important;
+        color: #0F172A !important;
+        letter-spacing: -0.02em !important;
+    }
+
+    /* Premium styled dashboard cards for Streamlit Metrics */
+    div[data-testid="stMetric"] {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 12px !important;
+        padding: 1.25rem 1.5rem !important;
+        box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04) !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    div[data-testid="stMetric"]:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.05), 0 4px 6px -4px rgba(15, 23, 42, 0.05) !important;
+        border-color: #CBD5E1 !important;
+    }
+    
+    /* Metrics Label and Value Styling */
+    div[data-testid="stMetricLabel"] > div {
+        font-size: 0.8rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        color: #64748B !important;
+        font-weight: 600 !important;
+    }
+    div[data-testid="stMetricValue"] > div {
+        font-size: 1.8rem !important;
+        font-weight: 700 !important;
+        color: #0F172A !important;
+        letter-spacing: -0.03em !important;
+    }
+
+    /* Modern Tabs layout customization */
+    button[data-baseweb="tab"] {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 0.88rem !important;
+        color: #64748B !important;
+        padding: 0.75rem 1.25rem !important;
+        transition: all 0.2s ease !important;
+        border-bottom-width: 2px !important;
+    }
+    button[data-baseweb="tab"]:hover {
+        color: #0F172A !important;
+    }
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: #0969DA !important;
+        border-bottom-color: #0969DA !important;
+    }
+
+    /* Professional dark sidebar aesthetic */
+    section[data-testid="stSidebar"] {
+        background-color: #0F172A !important;
+        border-right: 1px solid #1E293B !important;
+    }
+    section[data-testid="stSidebar"] .stMarkdown, 
+    section[data-testid="stSidebar"] .stRadio label,
+    section[data-testid="stSidebar"] p {
+        color: #E2E8F0 !important;
+    }
+    section[data-testid="stSidebar"] hr {
+        border-color: #1E293B !important;
+    }
+
+    /* Spacing adjustments */
+    .block-container {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+        max-width: 1300px !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # ── Imports ──
 from data_loader import carregar_todos
 from config import CORES_TRIBUNAL
@@ -118,8 +212,8 @@ st.markdown(f"""
     </div>
     <div style='display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; font-size: 0.68rem; color: #484F58;'>
         <span>📊 Dados: <span style='color: #6E7681;'>DataJud · CNJ (API pública)</span></span>
-        <span>🤖 <span style='color: #6E7681;'>IA utilizada na implementação</span></span>
-        <span>📅 <span style='color: #6E7681;'>{datetime.now().strftime('%d/%m/%Y %H:%M')}</span></span>
+        <span>🔬 Metodologia: <span style='color: #6E7681;'>Análise Quantitativa e Jurimetria</span></span>
+        <span>📅 Processamento: <span style='color: #6E7681;'>{datetime.now().strftime('%d/%m/%Y %H:%M')}</span></span>
     </div>
 </div>
 """, unsafe_allow_html=True)

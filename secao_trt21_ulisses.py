@@ -364,11 +364,11 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
     with aba2:
 
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(9,105,218,0.08), rgba(188,140,255,0.06)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #0969DA;'>
-            <span style='font-size: 0.78rem; color: #57606A;'>
-                Mapa interativo dos <b>167 municipios</b> do Rio Grande do Norte agrupados por <b>Vara Trabalhista</b>.
-                Municipios da mesma vara compartilham a mesma cor. Passe o mouse para ver dados socioeconomicos
-                (populacao, PIB per capita, IDHM) obtidos via <b>API do IBGE</b>.
+        <div style='background-color: #F0F9FF; border: 1px solid #E0F2FE; border-left: 4px solid #0969DA; border-radius: 8px; padding: 0.85rem 1.1rem; margin-bottom: 1.25rem;'>
+            <span style='font-size: 0.82rem; color: #0369A1; font-weight: 500; line-height: 1.5;'>
+                🗺️ Mapa interativo dos <b>167 municípios</b> do Rio Grande do Norte agrupados por <b>Vara Trabalhista</b>.
+                Municípios da mesma vara compartilham a mesma cor. Passe o mouse para visualizar os dados socioeconômicos
+                (população, PIB per capita, IDHM) integrados em tempo real via <b>API do IBGE</b>.
             </span>
         </div>
         """, unsafe_allow_html=True)
@@ -439,7 +439,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
             geojson_rn = _carregar_geojson_rn()
         except Exception:
             geojson_rn = None
-            st.error("Nao foi possivel carregar o GeoJSON dos municipios do RN.")
+            st.error("Não foi possível carregar o GeoJSON dos municípios do RN.")
 
         if geojson_rn is not None:
             # Construir dataframe por municipio do GeoJSON
@@ -757,10 +757,10 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
     # ABA 4 — PERFIL DAS DEMANDAS
     with aba4:
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(9,105,218,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #0969DA;'>
-            <span style='font-size: 0.78rem; color: #57606A;'>
-                Perfil descritivo das ações judiciais trabalhistas — assuntos primários e classes processuais
-                (Rito Ordinário, Sumaríssimo e Sumário) — variáveis relevantes para a análise da judicialização.
+        <div style='background-color: #F0F9FF; border: 1px solid #E0F2FE; border-left: 4px solid #0969DA; border-radius: 8px; padding: 0.85rem 1.1rem; margin-bottom: 1.25rem;'>
+            <span style='font-size: 0.82rem; color: #0369A1; font-weight: 500; line-height: 1.5;'>
+                📊 Perfil descritivo das ações judiciais trabalhistas — assuntos primários e classes processuais
+                (Rito Ordinário, Sumaríssimo e Sumário) — variáveis chaves para a análise da judicialização.
             </span>
         </div>
         """, unsafe_allow_html=True)
@@ -906,9 +906,9 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
     # ABA 5 — ESTRUTURA JUDICIAL
     with aba5:
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(9,105,218,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #0969DA;'>
-            <span style='font-size: 0.78rem; color: #57606A;'>
-                Estrutura dos órgãos julgadores da Justiça do Trabalho no RN — distribuição de processos
+        <div style='background-color: #F0F9FF; border: 1px solid #E0F2FE; border-left: 4px solid #0969DA; border-radius: 8px; padding: 0.85rem 1.1rem; margin-bottom: 1.25rem;'>
+            <span style='font-size: 0.82rem; color: #0369A1; font-weight: 500; line-height: 1.5;'>
+                🏛️ Estrutura dos órgãos julgadores da Justiça do Trabalho no RN — distribuição de processos
                 por vara, formato e sistema processual.
             </span>
         </div>
@@ -1136,12 +1136,11 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         import re as _re
 
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(130,80,223,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #8250DF;'>
-            <span style='font-size: 0.78rem; color: #57606A;'>
-                Lista completa de todos os assuntos encontrados nos processos. Cada processo pode conter multiplos
-                assuntos separados por <code>|</code> na coluna <code>assuntos_str</code>. A aba <b>Dados Originais</b>
-                mostra os dados brutos; a aba <b>Dados Consolidados</b> aplica normalizacao (resolve N/A via
-                codigo, unifica assuntos duplicados e corrige variacoes ortograficas).
+        <div style='background-color: #FAF5FF; border: 1px solid #F3E8FF; border-left: 4px solid #8250DF; border-radius: 8px; padding: 0.85rem 1.1rem; margin-bottom: 1.25rem;'>
+            <span style='font-size: 0.82rem; color: #6B21A8; font-weight: 500; line-height: 1.5;'>
+                🔍 Lista analítica de todos os assuntos cadastrados. Cada registro pode conter múltiplos
+                assuntos correlacionados. A aba <b>Dados Originais</b> apresenta a base bruta; a aba <b>Dados Consolidados</b> 
+                aplica regras de normalização científica (resolução de inconsistências e padronização ortográfica).
             </span>
         </div>
         """, unsafe_allow_html=True)
@@ -1157,7 +1156,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 # KPIs de impacto da consolidacao
                 stats = gerar_estatisticas_consolidacao(df_ass_orig, df_ass_cons)
                 ka1, ka2, ka3, ka4 = st.columns(4)
-                ka1.metric("Mencoes Totais", fmt_num(stats['mencoes_orig']))
+                ka1.metric("Menções Totais", fmt_num(stats['mencoes_orig']))
                 ka2.metric("Assuntos Originais", fmt_num(stats['assuntos_orig']))
                 ka3.metric("Assuntos Consolidados", fmt_num(stats['assuntos_cons']),
                            delta=f"-{stats['reducao_assuntos']}", delta_color="normal")
@@ -1259,24 +1258,23 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                         key="ulisses_download_assuntos_cons",
                     )
         else:
-            st.warning("Coluna 'assuntos_str' nao encontrada nos dados.")
+            st.warning("Coluna 'assuntos_str' não encontrada nos dados.")
 
     # ═══════════ ABA 8: EVOLUÇÃO DE ASSUNTOS ═══════════
     with aba8:
         import re as _re8
 
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(9,105,218,0.06), rgba(130,80,223,0.04)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #0969DA;'>
-            <span style='font-size: 0.78rem; color: #57606A;'>
-                Analise da evolucao temporal dos assuntos processuais agrupados por <b>semestre</b>.
-                Selecione os assuntos de interesse para visualizar tendencias, picos e vales ao longo do periodo 2020-2024.
-                Os dados utilizam a base <b>consolidada</b> (assuntos normalizados e N/A resolvidos).
+        <div style='background-color: #F0F9FF; border: 1px solid #E0F2FE; border-left: 4px solid #0969DA; border-radius: 8px; padding: 0.85rem 1.1rem; margin-bottom: 1.25rem;'>
+            <span style='font-size: 0.82rem; color: #0369A1; font-weight: 500; line-height: 1.5;'>
+                📈 Análise de evolução temporal dos assuntos processuais agrupados por <b>semestre</b>.
+                Selecione os temas de interesse para visualizar tendências, picos e vales ao longo do período 2020-2024 na base <b>consolidada</b>.
             </span>
         </div>
         """, unsafe_allow_html=True)
 
         if 'assuntos_str' not in df_f.columns or 'dataAjuizamento' not in df_f.columns:
-            st.warning("Colunas necessarias ('assuntos_str', 'dataAjuizamento') nao encontradas.")
+            st.warning("Colunas necessárias ('assuntos_str', 'dataAjuizamento') não encontradas.")
         else:
             # Usar funcao centralizada com consolidacao
             df_exp_sem = explodir_assuntos(df_f, consolidar=True)
@@ -1513,11 +1511,11 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
         import re as _re9
 
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(207,34,46,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #CF222E;'>
-            <span style='font-size: 0.78rem; color: #57606A;'>
-                Analise focada em processos relacionados a <b>saude do trabalhador</b>: acidentes de trabalho,
-                doencas ocupacionais, insalubridade, periculosidade, assedio, danos morais/materiais/esteticos e outros.
-                Os dados sao filtrados automaticamente a partir dos assuntos processuais da base consolidada.
+        <div style='background-color: #FEF2F2; border: 1px solid #FEE2E2; border-left: 4px solid #CF222E; border-radius: 8px; padding: 0.85rem 1.1rem; margin-bottom: 1.25rem;'>
+            <span style='font-size: 0.82rem; color: #991B1B; font-weight: 500; line-height: 1.5;'>
+                🩺 Recorte temático focado em <b>saúde e segurança do trabalhador</b>: acidentes laborais,
+                doenças ocupacionais, adicionais de insalubridade/periculosidade, assédios e indenizações correlatas.
+                Dados filtrados via cruzamento semântico na base consolidada.
             </span>
         </div>
         """, unsafe_allow_html=True)
@@ -1560,9 +1558,9 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 assuntos_saude_unicos = df_saude['assunto'].nunique()
 
                 ks1, ks2, ks3, ks4 = st.columns(4)
-                ks1.metric("Mencoes de Saude", fmt_num(total_saude))
+                ks1.metric("Menções de Saúde", fmt_num(total_saude))
                 ks2.metric("% do Total", f"{pct_saude}%")
-                ks3.metric("Assuntos de Saude", fmt_num(assuntos_saude_unicos))
+                ks3.metric("Assuntos de Saúde", fmt_num(assuntos_saude_unicos))
                 ks4.metric("Comarcas Afetadas", fmt_num(df_saude['comarca'].nunique()))
 
                 st.markdown("---")
@@ -1571,7 +1569,7 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 col_rank, col_chart = st.columns([1, 2])
 
                 with col_rank:
-                    st.markdown("**Ranking de Assuntos de Saude**")
+                    st.markdown("**Ranking de Assuntos de Saúde**")
                     df_rank_saude = (
                         df_saude.groupby('assunto')
                         .agg(Freq=('assunto', 'count'), Comarcas=('comarca', 'nunique'))
@@ -1714,15 +1712,15 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
             else:
                 st.warning("Nenhum dado de assuntos encontrado.")
         else:
-            st.warning("Coluna 'assuntos_str' nao encontrada.")
+            st.warning("Coluna 'assuntos_str' não encontrada.")
 
     # ═══════════ ABA 10: RITOS PROCESSUAIS ═══════════
     with aba10:
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(26,127,55,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #1A7F37;'>
-            <span style='font-size: 0.78rem; color: #57606A;'>
-                Analise da distribuicao processual por <b>rito</b> (Sumarissimo, Ordinario, Sumario).
-                A variavel <code>rito</code> e derivada de <code>classe_nome</code>, preservando a coluna original.
+        <div style='background-color: #F0FDF4; border: 1px solid #DCFCE7; border-left: 4px solid #1A7F37; border-radius: 8px; padding: 0.85rem 1.1rem; margin-bottom: 1.25rem;'>
+            <span style='font-size: 0.82rem; color: #166534; font-weight: 500; line-height: 1.5;'>
+                ⚖️ Distribuição processual de acordo com o <b>rito de tramitação</b> (Ordinário, Sumaríssimo e Sumário).
+                A classificação do rito é derivada sistematicamente a partir da tipologia das classes processuais.
             </span>
         </div>
         """, unsafe_allow_html=True)
@@ -1823,101 +1821,100 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 df_rito_tab.index += 1
                 st.dataframe(df_rito_tab, use_container_width=True)
         else:
-            st.info("Coluna 'rito' nao encontrada. Verifique se o data_loader esta atualizado.")
+            st.info("Coluna 'rito' não encontrada. Verifique se o data_loader está atualizado.")
 
     # ═══════════ ABA 11: NOTAS TÉCNICAS ═══════════
     with aba11:
         st.markdown("""
-        <div style='background: linear-gradient(135deg, rgba(87,96,106,0.06), rgba(9,105,218,0.03)); border-radius: 8px; padding: 0.8rem 1rem; margin-bottom: 1rem; border-left: 3px solid #57606A;'>
-            <span style='font-size: 0.78rem; color: #57606A;'>
-                Documentacao das decisoes metodologicas aplicadas ao tratamento dos dados.
-                Todas as transformacoes, limpezas e derivacoes estao registradas abaixo para
-                garantir <b>transparencia</b> e <b>reprodutibilidade</b> da analise.
+        <div style='background-color: #F8FAFC; border: 1px solid #E2E8F0; border-left: 4px solid #475569; border-radius: 8px; padding: 0.85rem 1.1rem; margin-bottom: 1.25rem;'>
+            <span style='font-size: 0.82rem; color: #334155; font-weight: 500; line-height: 1.5;'>
+                📖 Documentação técnica das decisões metodológicas e tratamento de dados.
+                Transformações e higienizações registradas para assegurar transparência, auditabilidade e reprodutibilidade.
             </span>
         </div>
         """, unsafe_allow_html=True)
 
         st.markdown("### 1. Fonte dos Dados")
         st.markdown("""
-| Item | Descricao |
+| Item | Descrição |
 |------|-----------|
-| **Origem** | Base de dados do TRT21 (21a Regiao — Rio Grande do Norte) |
-| **Periodo** | 2020 a 2024 |
+| **Origem** | Base de dados do TRT21 (21ª Região — Rio Grande do Norte) |
+| **Período** | 2020 a 2024 |
 | **Arquivos** | `trt21_2020_capa.xlsx` a `trt21_2024_capa.xlsx` |
 | **Tipo** | Dados de capa processual (metadados) |
 | **Total de registros** | ~78.353 processos |
-| **Sistema** | PJe (Processo Judicial Eletronico) |
+| **Sistema** | PJe (Processo Judicial Eletrônico) |
         """)
 
         st.markdown("---")
-        st.markdown("### 2. Variaveis Derivadas")
+        st.markdown("### 2. Variáveis Derivadas")
         st.markdown("""
-As seguintes variaveis **nao existem nos dados originais** e foram criadas durante o processamento:
+As seguintes variáveis **não existem nos dados originais** e foram criadas durante o processamento:
 
-| Variavel | Origem | Logica de Derivacao |
+| Variável | Origem | Lógica de Derivação |
 |----------|--------|---------------------|
-| `municipio_comarca` | `orgaoJulgador_nome` | Regex extrai cidade apos "Vara do Trabalho de". Gabinetes → "Tribunal (2a Instancia)". |
-| `assunto_primario_nome` | `assuntos_str` | Primeiro assunto da lista separada por `\\|`, removendo o codigo numerico. |
-| `rito` | `classe_nome` | Extrai o tipo de rito (Sumarissimo, Ordinario, Sumario) da classe processual. A coluna `classe_nome` original e **preservada intacta**. |
-| `ano`, `mes`, `trimestre`, `mes_ano` | `dataAjuizamento` | Decomposicao da data de ajuizamento em componentes temporais. |
+| `municipio_comarca` | `orgaoJulgador_nome` | Regex extrai cidade após "Vara do Trabalho de". Gabinetes → "Tribunal (2ª Instância)". |
+| `assunto_primario_nome` | `assuntos_str` | Primeiro assunto da lista separada por `\\|`, removendo o código numérico. |
+| `rito` | `classe_nome` | Extrai o tipo de rito (Sumaríssimo, Ordinário, Sumário) da classe processual. A coluna `classe_nome` original é **preservada intacta**. |
+| `ano`, `mes`, `trimestre`, `mes_ano` | `dataAjuizamento` | Decomposição da data de ajuizamento em componentes temporais. |
         """)
 
         st.markdown("---")
-        st.markdown("### 3. Normalizacao de Assuntos")
+        st.markdown("### 3. Normalização de Assuntos")
         st.markdown("""
-A base original apresenta inconsistencias nos assuntos processuais. Aplicamos 3 etapas de normalizacao
-(modulo `normalizacao_assuntos.py`), preservando os dados originais na aba "Lista de Assuntos > Dados Originais":
+A base original apresenta inconsistências nos assuntos processuais. Aplicamos 3 etapas de normalização
+(módulo `normalizacao_assuntos.py`), preservando os dados originais na aba "Lista de Assuntos > Dados Originais":
 
-**Etapa 1 — Resolucao de "N/A":** Muitos codigos aparecem com o nome "N/A" em alguns registros e com
-nome real em outros. Quando um codigo possui nome real em pelo menos 1 registro, todos os "N/A" daquele
-codigo sao substituidos pelo nome real.
+**Etapa 1 — Resolução de "N/A":** Muitos códigos aparecem com o nome "N/A" em alguns registros e com
+nome real em outros. Quando um código possui nome real em pelo menos 1 registro, todos os "N/A" daquele
+código são substituídos pelo nome real.
 
-**Etapa 2 — Unificacao de similares:** Variacoes ortograficas sao mapeadas para a forma canonica. Exemplos:
+**Etapa 2 — Unificação de similares:** Variações ortográficas são mapeadas para a forma canônica. Exemplos:
 - "Adicional de Hora Extra" → "Adicional de Horas Extras"
-- "Complementacao de Aposentadoria / Pensao" → "Complementacao de Aposentadoria/Pensao"
-- "Supressao/Reducao de Horas Extras Habituais - Indenizacao" → "Supressao/Reducao de Horas Extras/Indenizacao"
+- "Complementação de Aposentadoria / Pensão" → "Complementação de Aposentadoria/Pensão"
+- "Supressão/Redução de Horas Extras Habituais - Indenização" → "Supressão/Redução de Horas Extras/Indenização"
 
-**Etapa 3 — Agrupamento por nome:** Assuntos com nomes identicos mas codigos diferentes sao contabilizados juntos.
+**Etapa 3 — Agrupamento por nome:** Assuntos com nomes idênticos mas códigos diferentes são contabilizados juntos.
         """)
 
         st.markdown("---")
-        st.markdown("### 4. Saude do Trabalhador — Criterios de Filtro")
+        st.markdown("### 4. Saúde do Trabalhador — Critérios de Filtro")
         st.markdown("""
-A aba "Saude do Trabalhador" filtra processos com base em **dois criterios combinados** (OR):
+A aba "Saúde do Trabalhador" filtra processos com base em **dois critérios combinados** (OR):
 
-1. **Por codigo:** Codigos especificos pre-mapeados (insalubridade, acidente, doenca ocupacional, danos, assedio, etc.)
-2. **Por nome:** Regex que captura termos como: saude, doenca, acidente, insalubr, periculosid, dano, assedio, morte, COVID, etc.
+1. **Por código:** Códigos específicos pré-mapeados (insalubridade, acidente, doença ocupacional, danos, assédio, etc.)
+2. **Por nome:** Regex que captura termos como: saúde, doença, acidente, insalubr, periculosid, dano, assédio, morte, COVID, etc.
 
 **Categorias identificadas:**
-- Insalubridade/Periculosidade (adicional, cumulacao, compensacao)
-- Acidente de Trabalho e Doenca Ocupacional
-- Danos (moral, material, estetico, coletivo)
-- Assedio (moral e sexual)
-- Outros (morte, plano de saude, COVID-19)
+- Insalubridade/Periculosidade (adicional, cumulação, compensação)
+- Acidente de Trabalho e Doença Ocupacional
+- Danos (moral, material, estético, coletivo)
+- Assédio (moral e sexual)
+- Outros (morte, plano de saúde, COVID-19)
         """)
 
         st.markdown("---")
-        st.markdown("### 5. Dados Socioeconomicos do Mapa")
+        st.markdown("### 5. Dados Socioeconômicos do Mapa")
         st.markdown("""
-| Indicador | Fonte | Atualizacao |
+| Indicador | Fonte | Atualização |
 |-----------|-------|-------------|
-| **Populacao** | API IBGE (Tabela 6579) | Estimativa mais recente disponivel |
-| **PIB per capita** | API IBGE (Tabela 5938) | Calculado: PIB total * 1000 / Populacao |
-| **Area territorial** | API IBGE (Tabela 1301) | Dados oficiais |
-| **IDHM** | Atlas Brasil / PNUD | **Censo 2010** (ultimo disponivel em nivel municipal) |
+| **População** | API IBGE (Tabela 6579) | Estimativa mais recente disponível |
+| **PIB per capita** | API IBGE (Tabela 5938) | Calculado: PIB total * 1000 / População |
+| **Área territorial** | API IBGE (Tabela 1301) | Dados oficiais |
+| **IDHM** | Atlas Brasil / PNUD | **Censo 2010** (último disponível em nível municipal) |
 
-> **Nota sobre o IDHM:** O Indice de Desenvolvimento Humano Municipal (IDHM) utilizado e proveniente
-> do Censo Demografico de 2010, que e a **unica fonte publica de IDHM em nivel municipal** disponivel
-> no Brasil. O Censo 2022 ainda nao publicou IDHM municipalizado. Quando disponibilizado, os dados
-> serao atualizados. Os valores estao armazenados estaticamente no modulo `dados_ibge_rn.py`.
+> **Nota sobre o IDHM:** O Índice de Desenvolvimento Humano Municipal (IDHM) utilizado é proveniente
+> do Censo Demográfico de 2010, que é a **única fonte pública de IDHM em nível municipal** disponível
+> no Brasil. O Censo 2022 ainda não publicou IDHM municipalizado. Quando disponibilizado, os dados
+> serão atualizados. Os valores estão armazenados estaticamente no módulo `dados_ibge_rn.py`.
         """)
 
         st.markdown("---")
         st.markdown("### 6. Estrutura de Varas Trabalhistas")
         st.markdown("""
-O mapeamento de municipios para varas trabalhistas segue o arquivo oficial
-`TRT21 - Pagina1 (1).csv`, que define a jurisdicao de cada uma das **9 varas** do RN.
-Todos os 167 municipios do estado estao mapeados.
+O mapeamento de municípios para varas trabalhistas segue o arquivo oficial
+`TRT21 - Página1 (1).csv`, que define a jurisdição de cada uma das **9 varas** do RN.
+Todos os 167 municípios do estado estão mapeados.
         """)
 
         st.markdown("---")
