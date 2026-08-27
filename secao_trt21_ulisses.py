@@ -18,28 +18,28 @@ from normalizacao_assuntos import (
 )
 
 # ─────────────────────────────────────────────
-# DICIONÁRIO GEOGRÁFICO — COMARCAS TRT21/RN
+# DICIONÁRIO GEOGRÁFICO — VARAS TRT21/RN
+# Apenas as 9 varas oficiais + sedes do Fórum de Natal.
+# Fonte: CSV TRT21 - Página1 (1).csv
 # ─────────────────────────────────────────────
 COMARCAS_GEO = {
-    "Natal": {"lat": -5.7945, "lon": -35.2110, "varas": 13, "regiao": "Grande Natal"},
-    "Parnamirim": {"lat": -5.9148, "lon": -35.2633, "varas": 1, "regiao": "Grande Natal"},
-    "São Gonçalo do Amarante": {"lat": -5.7939, "lon": -35.3314, "varas": 1, "regiao": "Grande Natal"},
-    "Ceará-Mirim": {"lat": -5.6381, "lon": -35.4253, "varas": 1, "regiao": "Grande Natal"},
-    "Macaíba": {"lat": -5.8569, "lon": -35.3564, "varas": 1, "regiao": "Grande Natal"},
-    "Mossoró": {"lat": -5.1879, "lon": -37.3441, "varas": 4, "regiao": "Oeste"},
-    "Macau": {"lat": -5.1101, "lon": -36.6322, "varas": 2, "regiao": "Salineira"},
-    "Assu": {"lat": -5.5719, "lon": -36.9075, "varas": 1, "regiao": "Vale do Açu"},
-    "Pau dos Ferros": {"lat": -6.1108, "lon": -38.2042, "varas": 1, "regiao": "Alto Oeste"},
-    "Caicó": {"lat": -6.4583, "lon": -37.0972, "varas": 1, "regiao": "Seridó"},
-    "Currais Novos": {"lat": -6.2597, "lon": -36.5158, "varas": 1, "regiao": "Seridó"},
-    "Santa Cruz": {"lat": -6.2239, "lon": -35.8244, "varas": 1, "regiao": "Trairi"},
-    "Goianinha": {"lat": -6.2692, "lon": -35.2011, "varas": 1, "regiao": "Litoral Sul"},
-    "Nova Cruz": {"lat": -6.2503, "lon": -35.4253, "varas": 1, "regiao": "Agreste"},
-    "Caraúbas": {"lat": -5.7842, "lon": -37.5567, "varas": 1, "regiao": "Oeste"},
-    "Apodi": {"lat": -5.6597, "lon": -37.7958, "varas": 1, "regiao": "Oeste"},
-    "João Câmara": {"lat": -5.5392, "lon": -35.8136, "varas": 1, "regiao": "Agreste"},
-    "São Paulo do Potengi": {"lat": -5.8992, "lon": -35.6419, "varas": 1, "regiao": "Agreste"},
-    "Açu": {"lat": -5.5719, "lon": -36.9075, "varas": 1, "regiao": "Vale do Açu"},
+    # Grande Natal — Fórum (sede) + varas satélite
+    "Natal":                  {"lat": -5.7945, "lon": -35.2110, "varas": 13, "regiao": "Grande Natal"},
+    "Parnamirim":             {"lat": -5.9148, "lon": -35.2633, "varas": 1,  "regiao": "Grande Natal"},
+    "São Gonçalo do Amarante":{"lat": -5.7939, "lon": -35.3314, "varas": 1,  "regiao": "Grande Natal"},
+    "Ceará-Mirim":            {"lat": -5.6381, "lon": -35.4253, "varas": 1,  "regiao": "Grande Natal"},
+    "Macaíba":                {"lat": -5.8569, "lon": -35.3564, "varas": 1,  "regiao": "Grande Natal"},
+    # 9 Varas oficiais do TRT21 no interior
+    "Mossoró":      {"lat": -5.1879, "lon": -37.3441, "varas": 4, "regiao": "Oeste"},
+    "Macau":        {"lat": -5.1101, "lon": -36.6322, "varas": 2, "regiao": "Salineira"},
+    "Assu":         {"lat": -5.5719, "lon": -36.9075, "varas": 1, "regiao": "Vale do Açu"},
+    "Pau dos Ferros":{"lat": -6.1108, "lon": -38.2042, "varas": 1, "regiao": "Alto Oeste"},
+    "Caicó":        {"lat": -6.4583, "lon": -37.0972, "varas": 1, "regiao": "Seridó"},
+    "Currais Novos":{"lat": -6.2597, "lon": -36.5158, "varas": 1, "regiao": "Seridó"},
+    "Goianinha":    {"lat": -6.2692, "lon": -35.2011, "varas": 1, "regiao": "Litoral Sul"},
+    "Santa Cruz":   {"lat": -6.2239, "lon": -35.8244, "varas": 1, "regiao": "Trairi"},
+    # Alias: Açu é o município; Assu é o nome da Vara (mesmo ponto)
+    "Açu":          {"lat": -5.5719, "lon": -36.9075, "varas": 1, "regiao": "Vale do Açu"},
 }
 
 import unicodedata
@@ -229,20 +229,20 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
 
     # ── Filtros na sidebar ──
     with st.sidebar:
-        st.markdown("** PERÍODO**")
+        st.markdown("**📅 PERÍODO**")
         anos_disp = sorted(df_raw['ano'].dropna().unique().tolist())
         anos_sel = st.multiselect("Anos", options=anos_disp, default=anos_disp, label_visibility="collapsed", key="ulisses_anos")
 
-        st.markdown("** COMARCA**")
+        st.markdown("**📍 COMARCA**")
         comarcas_disp = sorted(df_raw['municipio_comarca'].dropna().unique().tolist())
         comarcas_sel = st.multiselect("Comarcas", options=comarcas_disp, default=comarcas_disp, label_visibility="collapsed", key="ulisses_comarcas")
 
-        st.markdown("** SISTEMA**")
+        st.markdown("**💻 SISTEMA**")
         sistemas_disp = sorted(df_raw['sistema_nome'].dropna().unique().tolist())
         sistemas_sel = st.multiselect("Sistemas", options=sistemas_disp, default=sistemas_disp, label_visibility="collapsed", key="ulisses_sistemas")
 
         if 'assunto_primario_nome' in df_raw.columns:
-            st.markdown("** ASSUNTO (Top 20)**")
+            st.markdown("**📂 ASSUNTO (Top 20)**")
             top_assuntos = df_raw['assunto_primario_nome'].value_counts().head(20).index.tolist()
             assuntos_sel = st.multiselect("Assuntos", options=top_assuntos, default=[], label_visibility="collapsed", key="ulisses_assuntos")
         else:
@@ -404,28 +404,32 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 if not sub.empty:
                     assunto_por_comarca[comarca_name] = str(sub.value_counts().index[0])[:45]
 
-        # -- Processos por vara (soma de todas as comarcas da vara) --
-        proc_por_vara = {}
-        for vara, muns_vara in _VARA_MUNICIPIOS.items():
-            total = 0
-            for comarca_name, n_proc in proc_por_comarca.items():
+        # -- Processos por vara (soma das comarcas cujo município pertence à vara) --
+        # Usa _MUNICIPIO_PARA_VARA (reverso de _VARA_MUNICIPIOS) para lookup O(1)
+        proc_por_vara = {vara: 0 for vara in _VARA_MUNICIPIOS}
+        for comarca_name, n_proc in proc_por_comarca.items():
+            vara_da_comarca = _MUNICIPIO_PARA_VARA.get(comarca_name)
+            if vara_da_comarca is None:
+                # Tentar match normalizado
                 cn = _normalizar(comarca_name)
-                for mv in muns_vara:
-                    if _normalizar(mv) == cn or _normalizar(vara) == cn:
-                        total += n_proc
+                for m, v in _MUNICIPIO_PARA_VARA.items():
+                    if _normalizar(m) == cn:
+                        vara_da_comarca = v
                         break
-            proc_por_vara[vara] = total
+            if vara_da_comarca and vara_da_comarca in proc_por_vara:
+                proc_por_vara[vara_da_comarca] += n_proc
 
         # -- Carregar dados socioeconomicos do IBGE --
         dados_ibge = carregar_dados_ibge()
 
         # -- KPIs --
         pop_total = sum(d['populacao'] for d in dados_ibge.values())
+        total_proc_vara = sum(proc_por_vara.values())  # total consistente com filtro aplicado
         vara_lider = max(proc_por_vara, key=proc_por_vara.get) if proc_por_vara else "-"
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("Varas Trabalhistas", len(_VARA_MUNICIPIOS))
-        m2.metric("Municipios Mapeados", sum(len(v) for v in _VARA_MUNICIPIOS.values()))
-        m3.metric("Populacao Total (RN)", f"{pop_total:,}".replace(",", "."))
+        m2.metric("Municípios Mapeados", sum(len(v) for v in _VARA_MUNICIPIOS.values()))
+        m3.metric("População Total (RN)", f"{pop_total:,}".replace(",", "."))
         m4.metric("Vara c/ Mais Processos", vara_lider)
 
         st.markdown("---")
@@ -526,10 +530,10 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                         "━━━━━━━━━━━━━━━━━━━━<br>"
                         "Vara: <b>%{customdata[1]}</b><br>"
                         "━━━━━━━━━━━━━━━━━━━━<br>"
-                        "Populacao: <b>%{customdata[2]}</b><br>"
+                        "População: <b>%{customdata[2]}</b><br>"
                         "PIB per capita: <b>%{customdata[3]}</b><br>"
                         "IDHM (2010): <b>%{customdata[4]}</b><br>"
-                        "Area: %{customdata[5]}<br>"
+                        "Área: %{customdata[5]}<br>"
                         "Densidade: %{customdata[6]}<br>"
                         "━━━━━━━━━━━━━━━━━━━━<br>"
                         "Processos na vara: <b>%{customdata[7]}</b><br>"
@@ -607,7 +611,11 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
 
             st.plotly_chart(fig_mapa, use_container_width=True)
 
-            st.caption("Mapa do Rio Grande do Norte · Municipios coloridos por Vara Trabalhista · Dados socioeconomicos via API IBGE (atualizados).")
+            sem_vara = df_mun[df_mun['vara'] == 'Sem vara']['municipio'].tolist()
+            if sem_vara:
+                st.warning(f"⚠️ {len(sem_vara)} município(s) sem vara definida: {', '.join(sem_vara)}")
+
+            st.caption("🗺️ Mapa do Rio Grande do Norte · Municípios coloridos por Vara Trabalhista · Dados socioeconômicos via API IBGE (atualizados).")
 
         st.markdown("---")
 
@@ -622,17 +630,17 @@ def render_trt21_ulisses(df_raw: pd.DataFrame):
                 pop_vara = sum(dados_ibge.get(m, {}).get('populacao', 0) for m in muns_v)
                 vara_rows.append({
                     'Vara': vara,
-                    'Municipios': len(muns_v),
+                    'Municípios': len(muns_v),
                     'Processos': n_proc,
-                    '%': round(n_proc / total_proc * 100, 1) if total_proc > 0 else 0,
-                    'Populacao': pop_vara,
+                    '%': round(n_proc / total_proc_vara * 100, 1) if total_proc_vara > 0 else 0,
+                    'População': pop_vara,
                 })
             df_rank_vara = pd.DataFrame(vara_rows).sort_values('Processos', ascending=False).reset_index(drop=True)
             df_rank_vara.index += 1
             df_rank_display = df_rank_vara.copy()
             df_rank_display['Processos'] = df_rank_display['Processos'].apply(lambda v: f"{v:,}".replace(",", "."))
             df_rank_display['%'] = df_rank_display['%'].apply(lambda v: f"{v}%")
-            df_rank_display['Populacao'] = df_rank_display['Populacao'].apply(lambda v: f"{v:,}".replace(",", "."))
+            df_rank_display['População'] = df_rank_display['População'].apply(lambda v: f"{v:,}".replace(",", "."))
             st.dataframe(df_rank_display, use_container_width=True, height=380)
 
         with col_bar:
@@ -1932,4 +1940,5 @@ Todos os 167 municipios do estado estao mapeados.
         """)
 
         st.markdown("---")
-        st.caption("Ultima atualizacao das notas tecnicas: Junho/2025 · Observatorio dos Direitos Sociais do Semiarido · UFERSA")
+        from datetime import datetime as _dt_notas
+        st.caption(f"Última atualização das notas técnicas: {_dt_notas.now().strftime('%d/%m/%Y')} · Observatório dos Direitos Sociais do Semiárido · UFERSA")
