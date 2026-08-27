@@ -309,10 +309,11 @@ def carregar_dados_ibge():
     # ── Aliases: municípios com nomes diferentes no GeoJSON vs API IBGE ──
     # Mapeamento completo auditado comparando geojs-24-mun.json com a API IBGE
     _ALIASES = {
-        # GeoJSON nome          : API IBGE nome
+        # GeoJSON/Outros nome    : API IBGE nome
         "Augusto Severo"        : "Campo Grande",          # renomeado; GeoJSON usa nome antigo
-        "Açu"                   : "Assu",                   # GeoJSON usa acento; API usa sem acento
-        "Arês"                  : "Arez",                   # GeoJSON usa acento; API usa sem acento
+        "A\u00e7u"               : "Ass\u00fa",              # GeoJSON usa A\u00e7u; API usa Ass\u00fa
+        "Assu"                  : "Ass\u00fa",              # Alguns códigos usam Assu; API usa Ass\u00fa
+        "Ar\u00eas"              : "Arez",                   # GeoJSON usa acento; API usa sem acento
         "Olho-d'\u00c1gua do Borges": "Olho d'\u00c1gua do Borges",  # hífen vs espaço
         "Presidente Juscelino"  : "Serra Caiada",           # município renomeado
     }
